@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="vi"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype Hồ sơ vụ án hình sự sơ thẩm — Hệ thống Quản lý án</title>
+<style>
+<style>
+
+  :root{
+    --brand:#8c0011; --brand-bg:#fdecec; --border-c:#e8e6e1;
+    --text:#1f1f1f; --muted:#888; --link:#1677ff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#f0f2f5;
+    font-family:"Be Vietnam Pro","Segoe UI",Roboto,Arial,"Helvetica Neue",sans-serif;
+    font-size:13px; color:var(--text);
+  }
+  .wrap{background:#fff; min-height:100vh;}
+  .icon{width:1em; height:1em; display:inline-block; vertical-align:-0.15em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  /* header */
+  .hd{display:flex; align-items:center; gap:12px; padding:10px 18px; border-bottom:1px solid var(--border-c);}
+  .hd .logo{width:34px; height:34px; border-radius:50%; background:var(--brand); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#fff;}
+  .hd .brand-sub{font-weight:600; font-size:12px;}
+  .hd .brand-main{font-weight:700; font-size:15px; color:var(--brand);}
+  .hd .spacer{flex:1;}
+  .hd .hicon{color:var(--muted); cursor:pointer;}
+  .kbd{border:1px solid var(--border-c); border-radius:5px; padding:4px 9px; font-size:11px; color:var(--muted); display:inline-flex; align-items:center; gap:6px;}
+  /* layout */
+  .body{display:flex;}
+  .side{width:210px; flex-shrink:0; border-right:1px solid var(--border-c); padding:8px 0; font-size:13px;}
+  .mi{padding:9px 16px; color:#555; display:flex; align-items:center; gap:10px; justify-content:space-between; cursor:pointer;}
+  .mi .l{display:flex; align-items:center; gap:10px;}
+  .mi:hover{background:#faf9f7;}
+  .mi.active{background:var(--brand-bg); color:var(--brand); font-weight:600;}
+  .mi .chev{color:#bbb;}
+  .sub{padding:8px 16px 8px 30px; display:flex; align-items:center; gap:10px; justify-content:space-between; cursor:pointer; color:#555;}
+  .sub.active{background:var(--brand-bg); color:var(--brand); font-weight:600;}
+  .leaf{padding:8px 16px 8px 46px; display:flex; align-items:center; gap:10px; cursor:pointer; color:#777;}
+  .leaf.active{background:var(--brand-bg); color:var(--brand); font-weight:600; border-left:3px solid var(--brand);}
+  .main{flex:1; min-width:0; padding:16px 20px;}
+  .crumb{color:var(--muted); font-size:12px; margin-bottom:8px;}
+  .crumb b{color:var(--text); font-weight:600;}
+  .title{font-weight:700; font-size:20px; margin:0 0 14px;}
+  /* quick search */
+  .qs{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+  .qs .box{flex:1; max-width:360px; display:flex;}
+  .qs input{flex:1; height:34px; font-size:13px; padding:0 12px; border:1px solid var(--border-c); border-radius:5px 0 0 5px; border-right:none; outline:none;}
+  .qs .sbtn{background:var(--brand); border:none; width:44px; border-radius:0 5px 5px 0; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center;}
+  .qs .adv{color:var(--link); cursor:pointer; display:flex; align-items:center; gap:5px; font-size:13px;}
+  .qs .rbtn{width:34px; height:34px; border:1px solid var(--border-c); border-radius:5px; background:#fff; cursor:pointer; color:#555; display:flex; align-items:center; justify-content:center;}
+  /* filters */
+  .filters{display:grid; grid-template-columns:repeat(3,1fr); gap:12px 16px; border:1px solid var(--border-c); border-radius:8px; padding:16px; margin-bottom:14px;}
+  .lbl{display:flex; flex-direction:column; gap:5px; font-size:13px;}
+  .lbl input, .lbl select{height:34px; font-size:13px; padding:0 10px; border:1px solid var(--border-c); border-radius:5px; outline:none; background:#fff;}
+  .range{display:flex; gap:6px;}
+  .range input{width:100%;}
+  .fbar{grid-column:1/-1; display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-top:2px;}
+  .fbar .link{color:var(--link); cursor:pointer; display:flex; align-items:center; gap:5px;}
+  .btn-primary{background:var(--brand); color:#fff; border:none; height:34px; padding:0 18px; border-radius:5px; font-size:13px; display:flex; align-items:center; gap:7px; cursor:pointer;}
+  .btn-ghost{background:#fff; border:1px solid var(--border-c); height:34px; padding:0 14px; border-radius:5px; font-size:13px; display:flex; align-items:center; gap:7px; cursor:pointer; color:#333;}
+  /* table */
+  .tbl-scroll{overflow-x:auto; border:1px solid var(--border-c); border-radius:8px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px; min-width:900px;}
+  thead tr{background:#faf9f7; text-align:left;}
+  th, td{padding:11px 12px; vertical-align:top;}
+  th{font-weight:600;}
+  tbody tr{border-top:1px solid var(--border-c);}
+  .caseno{color:var(--link); font-weight:600; border-left:3px solid var(--brand); padding-left:8px;}
+  .sub-t{color:#666;}
+  .muted{color:var(--muted);}
+  .badge{display:inline-block; padding:3px 10px; border-radius:12px; font-weight:600; font-size:11.5px; white-space:nowrap;}
+  .tag{display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; background:#f1efe8; color:#444441; margin-top:4px;}
+  .col-act{position:sticky; right:0; background:#fff; text-align:center; vertical-align:middle;}
+  thead .col-act{background:#faf9f7;}
+  .acts{display:inline-flex; gap:12px; align-items:center; justify-content:center;}
+  .acts .a{cursor:pointer;}
+  .a-eye{color:var(--link);}
+  .a-more{color:#555;}
+  /* paging */
+  .pgbar{display:flex; align-items:center; justify-content:space-between; margin-top:14px; color:#555; font-size:12.5px; flex-wrap:wrap; gap:10px;}
+  .pg{min-width:30px; height:30px; padding:0 6px; border:1px solid var(--border-c); border-radius:5px; display:inline-flex; align-items:center; justify-content:center; background:#fff; cursor:pointer;}
+  .pg.cur{border-color:var(--brand); color:var(--brand); font-weight:600;}
+  .pgctrl{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .pgctrl select{height:30px; font-size:12.5px; border:1px solid var(--border-c); border-radius:5px; padding:0 6px;}
+  .pgctrl .jump{width:46px; height:30px; text-align:center; border:1px solid var(--border-c); border-radius:5px; font-size:12.5px;}
+  @media (max-width:820px){
+    .side{display:none;}
+    .filters{grid-template-columns:1fr;}
+    table{min-width:0;}
+    thead{display:none;}
+    tbody tr{display:block; border-bottom:6px solid #f3f2ee; padding:8px 0;}
+    td{display:flex; justify-content:space-between; gap:12px; padding:5px 12px; text-align:right; border:none;}
+    td::before{content:attr(data-label); color:var(--muted); font-weight:600; text-align:left; flex-shrink:0;}
+    .caseno{border-left:none; padding-left:0;}
+    .col-act{position:static; box-shadow:none; border-left:none;}
+    .col-act .acts{justify-content:flex-end;}
+  }
+
+
+  :root{--brand:#8c0011;--brand-bg:#fdecec;--border-c:#e8e6e1;--text:#1f1f1f;--muted:#888;--link:#1677ff;--row-label:#f7f6f3;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f0f2f5;font-family:"Be Vietnam Pro","Segoe UI",Roboto,Arial,sans-serif;font-size:13px;color:var(--text);}
+  .wrap{background:#fff;min-height:100vh;display:flex;flex-direction:column;}
+  .icon{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .hd{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border-c);}
+  .hd .logo{width:34px;height:34px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;}
+  .hd .brand-sub{font-weight:600;font-size:12px;}
+  .hd .brand-main{font-weight:700;font-size:15px;color:var(--brand);}
+  .hd .spacer{flex:1;}
+  .hd .hicon{color:var(--muted);cursor:pointer;}
+  .kbd{border:1px solid var(--border-c);border-radius:5px;padding:4px 9px;font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;}
+  .body{display:flex;flex:1;}
+  .side{width:220px;flex-shrink:0;border-right:1px solid var(--border-c);padding:8px 0;font-size:13px;}
+  .mi{padding:9px 16px;color:#555;display:flex;align-items:center;gap:10px;justify-content:space-between;cursor:pointer;}
+  .mi .l{display:flex;align-items:center;gap:10px;}
+  .mi:hover{background:#faf9f7;}
+  .mi.active{background:var(--brand-bg);color:var(--brand);font-weight:600;}
+  .mi .chev{color:#bbb;}
+  .sub.active{background:var(--brand-bg);color:var(--brand);font-weight:600;padding:8px 16px 8px 30px;display:flex;align-items:center;gap:10px;justify-content:space-between;cursor:pointer;}
+  .leaf{padding:8px 16px 8px 46px;display:flex;align-items:center;gap:10px;cursor:pointer;color:#777;}
+  .leaf.active{background:var(--brand-bg);color:var(--brand);font-weight:600;border-left:3px solid var(--brand);}
+  .main{flex:1;min-width:0;padding:16px 24px;}
+  .crumb{color:var(--muted);font-size:12px;margin-bottom:10px;}
+  .crumb b{color:var(--text);font-weight:600;}
+  .titlebar{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .back{cursor:pointer;color:#555;display:flex;align-items:center;}
+  .titlebar h1{font-weight:700;font-size:20px;margin:0;flex:1;min-width:0;line-height:1.35;}
+  .status-badge{margin-left:auto;border:1px solid var(--brand);color:var(--brand);border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;text-align:center;}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border-c);overflow-x:auto;margin-bottom:20px;}
+  .tab{padding:12px 18px;font-size:14px;color:#444;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;}
+  .tab:hover{color:var(--brand);}
+  .tab.active{color:var(--brand);font-weight:700;border-bottom-color:var(--brand);}
+
+  /* ===== Timeline tiến độ giải quyết vụ án ===== */
+  .case-progress{margin:0 0 18px;padding:16px 22px 14px;background:#fff;border:1px solid var(--border-c);border-radius:10px;}
+  .cp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+  .cp-head .cp-title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--brand);}
+  .cp-head .cp-now{font-size:12.5px;color:var(--muted);}
+  .cp-head .cp-now b{color:var(--brand);font-weight:700;}
+  .cp-track{display:flex;}
+  .cp-step{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 2px;}
+  .cp-step::before{content:"";position:absolute;top:8px;left:-50%;width:100%;height:2px;background:#e6e3dd;z-index:1;}
+  .cp-step:first-child::before{display:none;}
+  .cp-node{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #d8d5cf;z-index:2;transition:all .2s;}
+  .cp-label{margin-top:11px;font-size:12.5px;line-height:1.35;color:var(--muted);max-width:118px;}
+  .cp-step.done::before{background:var(--brand);}
+  .cp-step.done .cp-node{background:var(--brand);border-color:var(--brand);}
+  .cp-step.done .cp-label{color:#3a3a3a;}
+  .cp-step.current::before{background:var(--brand);}
+  .cp-step.current .cp-node{background:#fff;border-color:var(--brand);box-shadow:0 0 0 4px rgba(140,0,17,.16);}
+  .cp-step.current .cp-label{color:var(--brand);font-weight:700;}
+  .cp-step.warn .cp-node{background:#fff;border-color:#b00018;box-shadow:0 0 0 4px rgba(176,0,24,.16);}
+  .cp-deadline{margin-top:7px;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;
+    font-weight:700;background:#fff;color:#b00018;border:1px solid #f0bcc2;white-space:nowrap;box-shadow:0 2px 6px rgba(140,0,17,.16);}
+  .cp-deadline.dl-left{color:#8a5a00;border-color:#f0d8a8;}
+  .cp-deadline::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  @media (max-width:900px){.cp-label{font-size:11px;}}
+
+  /* ===== Tab Theo dõi tống đạt ===== */
+  .td-group-h{display:flex;align-items:center;gap:10px;font-weight:800;font-size:12.5px;letter-spacing:.7px;text-transform:uppercase;
+    color:var(--brand);margin:26px 0 6px;padding-bottom:9px;border-bottom:2px solid var(--brand-bg);}
+  .td-group-h::before{content:"";width:13px;height:13px;border-radius:3px;background:var(--brand);flex-shrink:0;}
+  .td-group-h .gh-note{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);}
+
+  /* ===== Nhóm biểu mẫu (Danh sách quyết định) ===== */
+  .bm-grp{margin:0;}
+  .bm-grp-h{display:flex;align-items:center;gap:10px;font-weight:700;font-size:13.5px;color:var(--text);cursor:pointer;
+    padding:11px 14px;background:#faf7f2;border:1px solid var(--border-c);border-radius:8px;margin:10px 0 0;}
+  .bm-grp-h:hover{background:#f4efe7;}
+  .bm-grp-h .bm-grp-c{margin-left:auto;background:var(--brand);color:#fff;font-size:11.5px;font-weight:700;border-radius:11px;padding:1px 10px;min-width:22px;text-align:center;}
+  .bm-grp-h .bm-grp-c.zero{background:#d8d5cf;}
+  .bm-grp-body{padding:4px 0 2px;}
+
+  /* ===== Danh sách đơn (giao diện gọn, không gạch dưới) ===== */
+  .don-type{font-weight:700;color:var(--text);}
+  .don-view-ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;color:var(--brand);    background:var(--brand-bg);border:1px solid rgba(140,0,17,.22);cursor:pointer;transition:background .13s,border-color .13s;}
+  .don-view-ic:hover{background:#f7d9d9;border-color:rgba(140,0,17,.45);}
+  .don-act{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;
+    color:#fff;background:var(--brand);border:1px solid var(--brand);cursor:pointer;text-decoration:none;transition:background .13s;white-space:nowrap;}
+  .don-act:hover{background:#6e000d;}
+
+  /* ===== Tệp đính kèm (kết quả phúc thẩm/GĐT) ===== */
+  .attach-block{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;}
+  .attach-lbl{font-size:12.5px;color:var(--muted);font-weight:600;}
+  .file-attach{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:8px;font-size:12.5px;font-weight:600;
+    color:var(--brand);background:var(--brand-bg);border:1px solid rgba(140,0,17,.22);text-decoration:none;cursor:pointer;transition:background .13s,border-color .13s;}
+  .file-attach:hover{background:#f7d9d9;border-color:rgba(140,0,17,.45);}
+  .file-attach .fa-meta{color:var(--muted);font-weight:500;}
+
+  /* ===== Tab Tài liệu, chứng cứ (kho lưu trữ số) ===== */
+  .hs-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    background:linear-gradient(120deg,#8c0011,#6e000d);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:16px;
+    box-shadow:0 6px 18px rgba(140,0,17,.2);position:relative;overflow:hidden;}
+  .hs-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .hs-hero-title{font-size:17px;font-weight:800;letter-spacing:.2px;}
+  .hs-hero-sub{font-size:12.5px;color:#ffd0d5;margin-top:3px;}
+  .hs-hero-stats{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;position:relative;z-index:2;}
+  .hs-stat{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:9px;padding:9px 16px;min-width:80px;text-align:center;}
+  .hs-stat-n{font-size:20px;font-weight:800;line-height:1;}
+  .hs-stat-l{font-size:11px;color:#ffe0e3;margin-top:4px;}
+  .hs-stat-prog{min-width:180px;text-align:left;display:flex;flex-direction:column;justify-content:center;}
+  .hs-bar{height:7px;border-radius:4px;background:rgba(255,255,255,.25);overflow:hidden;}
+  .hs-bar span{display:block;height:100%;background:#fff;border-radius:4px;}
+  .hs-workspace{display:flex;gap:16px;align-items:flex-start;}
+  .hs-side{width:312px;flex-shrink:0;background:#fff;border:1px solid var(--border-c);border-radius:12px;padding:14px 12px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;flex-direction:column;height:640px;box-sizing:border-box;overflow:hidden;}
+  #hs-tree,#vhs-tree{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0 -4px;padding:0 4px;}
+  .hs-side-h{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--brand);padding:0 4px 10px;border-bottom:1px solid var(--border-c);margin-bottom:10px;}
+  .hs-search{display:flex;align-items:center;gap:8px;background:#faf7f2;border:1px solid var(--border-c);border-radius:8px;padding:7px 10px;margin-bottom:10px;color:var(--muted);}
+  .hs-search input{border:none;background:transparent;outline:none;font-size:13px;font-family:inherit;width:100%;color:var(--text);}
+  .hs-side-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-c);}
+  @media (max-width:820px){.hs-workspace{flex-direction:column}.hs-side{width:100%}}
+  .tab-icon{margin-left:14px;align-self:center;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;color:var(--brand);background:var(--brand-bg);border:1px solid rgba(140,0,17,.28);border-radius:50%;transition:background .15s,color .15s,border-color .15s;}
+  .tab-icon .icon{width:17px;height:17px;flex-shrink:0;}
+  .tab-icon:hover{background:#f9d9d9;color:var(--brand);border-color:rgba(140,0,17,.5);}
+  .tab-icon.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .tab-icon.active .icon{color:#fff;}
+
+  /* Danh sách người tham gia tố tụng — bố cục phá cách, uy nghiêm, không icon */
+  .tgtt-tbl td{vertical-align:middle;}
+  .tgtt-tbl tbody tr{transition:background .12s;}
+  .tgtt-tbl tbody tr:hover{background:#faf7f2;}
+  .tgtt-tbl .stt-cell{position:relative;padding-left:16px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;}
+  .tgtt-tbl .stt-cell::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:2px;}
+  .tgtt-tbl tr.side-ng .stt-cell::before{background:var(--brand);}
+  .tgtt-tbl tr.side-bi .stt-cell::before{background:#2a3d57;}
+  .tgtt-tbl .tg-name{font-weight:700;color:var(--text);}
+  .role-badge{display:inline-block;padding:3px 11px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:.2px;white-space:nowrap;}
+  .role-badge.rb-ng{background:var(--brand);color:#fff;}
+  .role-badge.rb-ng-dd{background:var(--brand-bg);color:var(--brand);border:1px solid rgba(140,0,17,.4);}
+  .role-badge.rb-bi{background:#2a3d57;color:#fff;}
+  .role-badge.rb-bi-bv{background:#eef1f6;color:#2a3d57;border:1px solid rgba(42,61,87,.35);}
+  .role-note{display:block;margin-top:3px;font-size:11.5px;color:var(--muted);}
+  .tg-phone{font-variant-numeric:tabular-nums;letter-spacing:.3px;color:var(--text);white-space:nowrap;}
+  .sec-h{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;color:var(--brand);margin:18px 0 12px;}
+  .badge-rutgon{background:var(--brand-bg);color:var(--brand);font-size:11.5px;font-weight:700;letter-spacing:.3px;padding:3px 10px;border-radius:12px;text-transform:uppercase;}
+  .don-yc-td{max-width:280px;}
+  .don-yc-cell{cursor:pointer;font-size:12.5px;line-height:1.45;color:var(--text);}
+  .don-yc-cell:hover .don-yc-clamp{color:var(--brand);}
+  .don-yc-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;}
+  ol.don-yc-list{margin:0;padding-left:18px;}
+  ol.don-yc-list li{margin:0;}
+  .don-yc-count{display:inline-block;background:var(--brand-bg);color:var(--brand);font-size:10.5px;font-weight:700;border-radius:10px;padding:1px 8px;margin-bottom:4px;}
+  .don-yc-viewmore{display:inline-block;margin-top:3px;font-size:11.5px;color:var(--link);text-decoration:underline;}
+  .sec-h .toggle{width:18px;height:18px;border:1.5px solid var(--brand);border-radius:3px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--brand);flex-shrink:0;}
+  .info-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
+  .info-tbl{border:1px solid var(--border-c);border-radius:8px;overflow:hidden;}
+  .info-row{display:grid;grid-template-columns:180px 1fr;border-bottom:1px solid var(--border-c);}
+  .info-row:last-child{border-bottom:none;}
+  .info-row .k{background:var(--row-label);padding:12px 14px;color:#555;border-right:1px solid var(--border-c);}
+  .info-row .v{padding:12px 14px;}
+  .card{border:1px solid var(--border-c);border-radius:8px;padding:16px;margin-bottom:8px;}
+  .card-top{display:flex;justify-content:flex-end;margin-bottom:12px;}
+  .kn-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .kn-search{display:flex;max-width:340px;flex:1;min-width:220px;}
+  .kn-search input{flex:1;height:36px;font-size:13px;padding:0 12px;border:1px solid var(--border-c);border-radius:6px 0 0 6px;border-right:none;outline:none;}
+  .kn-search button{background:var(--brand);border:none;width:44px;border-radius:0 6px 6px 0;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;}
+  .kn-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .fbox{border:1px solid var(--border-c);border-radius:8px;padding:16px;margin-bottom:14px;}
+  .fbox-title{font-weight:700;color:var(--text);font-size:14px;display:block;margin-bottom:12px;}
+  .result-lead{font-size:13px;color:var(--muted);margin:2px 0 12px;}
+  .segmented{display:inline-flex;border:1px solid var(--brand);border-radius:8px;overflow:hidden;margin-bottom:18px;}
+  .seg-btn{display:flex;align-items:center;gap:7px;background:#fff;color:var(--brand);border:none;padding:9px 22px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .seg-btn + .seg-btn{border-left:1px solid var(--brand);}
+  .seg-btn.active{background:var(--brand);color:#fff;}
+  .result-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:4px;}
+  .choose-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+  @media (max-width:760px){ .choose-grid{grid-template-columns:1fr;} }
+  .choose-card{border:1.5px solid var(--border-c);border-radius:10px;padding:22px 20px;cursor:pointer;transition:all .15s;background:#fff;}
+  .choose-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(140,0,17,.10);transform:translateY(-1px);}
+  .choose-ic{width:52px;height:52px;border-radius:12px;background:#F7ECEE;color:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .choose-t{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .choose-d{font-size:12.5px;color:var(--muted);line-height:1.55;}
+  /* v6.1 — Kết quả xét xử: 1 bản án (0..1) + n quyết định (0..n) */
+  .xx-sum{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#F7ECEE;border:1px solid #e6cdd1;border-left:4px solid var(--brand);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;}
+  .xx-sum .lb{color:#6b5257;font-weight:600;}
+  .xx-sum .vl{font-weight:700;color:var(--brand);font-size:14px;}
+  .xx-sum .ro{margin-left:auto;color:var(--muted);font-size:11.5px;display:inline-flex;align-items:center;gap:5px;}
+  .xx-blk{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:20px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border-c);}
+  .xx-blk .t{font-weight:700;font-size:13.5px;color:var(--text);display:inline-flex;align-items:center;gap:9px;}
+  .xx-blk .n{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11.5px;flex-shrink:0;}
+  .xx-card-pill{background:#EFF0F2;color:#555;border-radius:11px;padding:2px 9px;font-size:11px;font-weight:600;}
+  .xx-empty{border:1px dashed #d9d5d0;border-radius:8px;background:#fbfaf9;padding:26px 20px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.6;}
+  .xx-lock{background:#FFF6E5;border:1px solid #f0dcae;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12.5px;color:#8a6216;line-height:1.55;}
+  .chosen-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#F7ECEE;border:1px solid #e6cdd1;border-radius:8px;padding:10px 16px;margin-bottom:18px;font-size:13px;color:var(--text);}
+  .fbox-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+  .fbox-title-row .fbox-title{margin-bottom:0;}
+  .fbox-note{color:var(--muted);font-size:12.5px;}
+  .sq-search{background:var(--brand);border:none;width:40px;border-radius:6px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .attach-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .attach-row input{flex:1;min-width:160px;height:36px;font-size:13px;padding:0 12px;border:1px solid var(--border-c);border-radius:6px;outline:none;}
+  .kn-tabs{display:flex;gap:24px;border-bottom:1px solid var(--border-c);flex-wrap:wrap;}
+  .kn-tab{padding:10px 2px;font-size:13.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+  .kn-tab:hover{color:var(--text);}
+  .kn-tab.active{color:var(--brand);font-weight:600;border-bottom-color:var(--brand);}
+  .kn-tab-c{color:var(--muted);font-weight:400;}
+  .kn-tab.active .kn-tab-c{color:var(--brand);}
+  .caseno-2{color:var(--link);font-weight:600;cursor:pointer;}
+  .btn-add{background:var(--brand);color:#fff;border:none;height:36px;padding:0 16px;border-radius:6px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead tr{text-align:left;}
+  th{font-weight:600;padding:10px 12px;color:#333;}
+  td{padding:12px;border-top:1px solid var(--border-c);vertical-align:top;}
+  .muted{color:var(--muted);}
+  .link{color:var(--link);}
+  .tag-role{background:#eaf3de;color:#3b6d11;padding:3px 12px;border-radius:12px;font-size:12px;display:inline-block;}
+  .eye{color:var(--link);cursor:pointer;}
+  .empty{text-align:center;color:var(--muted);padding:20px;font-style:italic;}
+  .tbl-scroll{overflow-x:auto;}
+  .tbl-scroll table{min-width:600px;}
+  .card-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:14px;color:var(--muted);font-size:12.5px;}
+  .hs-tree-row{display:flex;align-items:center;gap:6px;padding:6px 6px;border-radius:5px;cursor:pointer;font-size:13px;color:#333;}
+  .hs-tree-row:hover{background:#F5F2EE;}
+  .hs-chevron{display:inline-flex;transition:transform .15s;color:#999;flex-shrink:0;}
+  .hs-chevron.open{transform:rotate(90deg);}
+  .hs-tree-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hs-tree-count{color:#999;font-size:11.5px;flex-shrink:0;}
+  .hs-add-btn{display:none;color:var(--brand);flex-shrink:0;padding:2px;}
+  .hs-tree-row:hover .hs-add-btn{display:inline-flex;}
+  .hs-file-list{margin-bottom:2px;}
+  .hs-file-row{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:12.5px;color:#444;}
+  .hs-file-row:hover{background:#F5F2EE;}
+  .hs-file-row.sel{background:var(--brand-bg);color:var(--brand);font-weight:600;}
+  .hs-file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hs-file-size{color:#999;font-size:11px;flex-shrink:0;}
+  /* Bộ lọc phạm vi + sắp xếp (giống mẫu chuẩn) */
+  .hs-flt-lbl{font-size:12px;color:var(--muted);margin:2px 4px 5px;}
+  .hs-seg{display:flex;background:#f2efe9;border-radius:8px;padding:3px;gap:3px;margin-bottom:12px;}
+  .hs-seg button{flex:1;border:none;background:transparent;font-family:inherit;font-size:12.5px;color:#555;padding:6px 4px;border-radius:6px;cursor:pointer;white-space:nowrap;}
+  .hs-seg button.on{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .hs-file2{display:flex;align-items:flex-start;gap:8px;padding:8px 8px;border-radius:6px;cursor:pointer;}
+  .hs-file2:hover{background:#F5F2EE;}
+  .hs-file2.sel{background:var(--brand-bg);}
+  .hs-file2 .fx-ic{flex-shrink:0;margin-top:1px;}
+  .hs-file2 .fx-body{flex:1;min-width:0;}
+  .hs-file2 .fx-name{font-size:13px;color:#333;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .hs-file2.sel .fx-name{color:var(--brand);font-weight:600;}
+  .hs-file2 .fx-meta{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11px;color:#9a8f8f;}
+  .hs-file2 .fx-badge{background:#FBEDEC;color:#8C0011;font-weight:600;border-radius:3px;padding:1px 5px;font-size:10px;letter-spacing:.3px;}
+  .hs-file2 .fx-star{flex-shrink:0;color:#c9bdbd;cursor:pointer;margin-top:1px;}
+  .hs-file2 .fx-star.on{color:#FAB01C;}
+  .hs-file2 .fx-more{flex-shrink:0;color:#b3a9a9;cursor:pointer;margin-top:1px;position:relative;}
+  .hs-grp-h{display:flex;align-items:center;gap:7px;padding:8px 6px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;color:#333;}
+  .hs-grp-h:hover{background:#F5F2EE;}
+  .hs-grp-h .g-count{margin-left:auto;color:#999;font-size:11.5px;font-weight:400;}
+  .hs-mark-row{display:flex;align-items:center;gap:7px;padding:8px 6px;font-size:13px;font-weight:600;color:#333;}
+  .hs-mark-row .g-count{margin-left:auto;color:#999;font-size:11.5px;font-weight:400;}
+  .hs-more-menu{position:absolute;top:20px;right:0;z-index:30;background:#fff;border:1px solid var(--border-c);border-radius:7px;box-shadow:0 6px 22px rgba(0,0,0,.15);min-width:180px;padding:4px;display:none;}
+  .pc-menu{position:absolute;top:calc(100% + 4px);right:0;z-index:40;background:#fff;border:1px solid var(--border-c);border-radius:8px;box-shadow:0 8px 26px rgba(0,0,0,.16);min-width:330px;padding:5px;display:none;}
+  .pc-menu.open{display:block;}
+  .pc-menu .it{display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:13px;border-radius:6px;cursor:pointer;color:#333;}
+  .pc-menu .it:hover{background:var(--brand-bg);color:var(--brand);}
+  .pc-menu .it svg{flex-shrink:0;color:var(--brand);}
+  .hs-more-menu.open{display:block;}
+  .hs-more-menu .it{padding:8px 10px;font-size:12.5px;border-radius:5px;cursor:pointer;color:#333;white-space:nowrap;}
+  .hs-more-menu .it:hover{background:#F5F2EE;}
+  .pg-mini{width:24px;height:24px;border:1px solid var(--brand);color:var(--brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:600;}
+  .pg-arrow{cursor:pointer;color:#888;display:inline-flex;}
+  .footbtns{display:flex;gap:12px;justify-content:flex-end;margin:20px 0;}
+  .btn-primary{background:var(--brand);color:#fff;border:none;height:38px;padding:0 20px;border-radius:6px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+  .btn-ghost{background:#fff;border:1px solid var(--border-c);height:38px;padding:0 16px;border-radius:6px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:#333;white-space:nowrap;flex-shrink:0;}
+  .footer{text-align:center;padding:12px;border-top:1px solid var(--border-c);color:var(--muted);font-size:12px;}
+  .footer a{color:var(--link);text-decoration:none;}
+  .placeholder{padding:48px;text-align:center;color:var(--muted);}
+  .collapsed{display:none;}
+  /* Hyperlink: chỉ dùng màu, bỏ gạch chân */
+  a, .caseno, .caseno-2, .don-yc-viewmore, .lnk-bienlai{text-decoration:none !important;}
+  a:hover, .caseno:hover, .caseno-2:hover, .don-yc-viewmore:hover, .lnk-bienlai:hover{text-decoration:none !important;}
+  /* Thanh nút thao tác đặt trong thân section (expand mới thấy) */
+  .sec-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;}
+  /* ===== Đếm số lượng trên tiêu đề mục + thanh công cụ danh sách (sticky) ===== */
+  .sec-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 8px;margin-left:2px;
+    background:var(--brand);color:#fff;font-size:11.5px;font-weight:700;border-radius:11px;letter-spacing:.3px;line-height:1;flex-shrink:0;}
+  .sec-count.filtered{background:#b26a00;}
+  .list-toolbar{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin:0 0 14px;padding:10px 12px;background:#fbf8f4;border:1px solid var(--border-c);border-radius:10px;
+    transition:box-shadow .18s,background .18s;}
+  .list-toolbar.stuck{box-shadow:0 8px 20px rgba(60,20,10,.13);background:#fff;}
+  .lt-search{flex:1;min-width:190px;max-width:320px;}
+  .lt-search input{width:100%;border:1px solid var(--border-c);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;
+    transition:border-color .15s,box-shadow .15s;}
+  .lt-search input::placeholder{color:#a7a29a;}
+  .lt-search input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(140,0,17,.12);}
+  .lt-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .lt-chip{padding:5px 12px;font-size:12.5px;font-weight:600;color:#5a5550;background:#fff;border:1px solid var(--border-c);border-radius:16px;
+    cursor:pointer;white-space:nowrap;transition:background .13s,color .13s,border-color .13s;}
+  .lt-chip:hover{border-color:var(--brand);color:var(--brand);}
+  .lt-chip.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .lt-chip .n{margin-left:5px;font-weight:700;opacity:.72;}
+  .lt-sort{display:flex;align-items:center;margin-left:auto;}
+  .lt-sort select{border:1px solid var(--border-c);border-right:none;border-radius:8px 0 0 8px;padding:7px 10px;font-size:12.5px;
+    font-family:inherit;background:#fff;color:#444;cursor:pointer;max-width:170px;}
+  .lt-sort select:focus{outline:none;}
+  .lt-dir{border:1px solid var(--border-c);border-radius:0 8px 8px 0;background:#fff;width:33px;height:34px;display:flex;
+    align-items:center;justify-content:center;cursor:pointer;color:var(--brand);font-weight:800;font-size:14px;user-select:none;}
+  .lt-dir:hover{background:var(--brand-bg);}
+  .lt-empty-row td{text-align:center;color:var(--muted);padding:22px 12px;font-style:italic;}
+  /* modal */
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:stretch;justify-content:flex-end;padding:0;overflow:hidden;z-index:50;}
+  body.modal-open{overflow:hidden !important;}
+  .modal-mask.open{display:flex;}
+  .modal{background:#fff;border-radius:0;width:46vw;max-width:none;min-width:420px;height:100vh;max-height:100vh;box-shadow:-8px 0 32px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+  .modal-mask.open .modal{transform:translateX(0);}
+  .modal-b{flex:1 1 auto;overflow-y:auto;}
+  .modal-h,.modal-f{flex:0 0 auto;border-radius:0;}
+  /* Panel lớn 2/3 màn */
+  .modal.flyout-lg{width:66vw;}
+  /* Popup Thêm mới thành phần tham gia tố tụng: rộng đến sát mép phải của left menu (.side ~220px) */
+  #m-tg .modal, #m-vtg .modal{width:calc(100vw - 220px);max-width:calc(100vw - 220px);}
+  /* [UPDATE] Flyout tách vụ án: rộng sát mép left-menu + bố cục master-detail */
+  #m-tachvuan .modal{width:calc(100vw - 220px);max-width:calc(100vw - 220px);}
+  .tach-md{display:grid;grid-template-columns:200px 1fr;gap:0;border:1px solid var(--border-c);border-radius:10px;overflow:hidden;min-height:360px;}
+  .tach-md-list{border-right:1px solid var(--border-c);background:#faf9f7;padding:8px;overflow-y:auto;max-height:60vh;}
+  .tach-md-list .lbl{font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.4px;margin:2px 4px 8px;}
+  .tach-vu-item{border:1px solid var(--border-c);border-radius:7px;padding:7px 9px;margin-bottom:5px;cursor:pointer;background:#fff;transition:.15s;}
+  .tach-vu-item:hover{border-color:var(--brand);}
+  .tach-vu-item.active{background:var(--brand-bg);border-color:var(--brand);}
+  .tach-vu-item .vt{font-weight:600;font-size:12.5px;}
+  .tach-vu-item.active .vt{color:var(--brand);}
+  .tach-vu-item .vs{font-size:10.5px;margin-top:2px;}
+  .tach-vu-item .vs.ok{color:#2e7d32;}
+  .tach-vu-item .vs.warn{color:#d48806;}
+  .tach-vu-item .vs.empty{color:#999;}
+  .tach-md-detail{padding:12px 14px;}
+  .tach-md-detail .dt-h{font-weight:700;color:var(--brand);margin-bottom:10px;font-size:14px;}
+  .tach-pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;font-size:12px;color:#555;}
+  .tach-pager .info{margin-right:auto;color:#888;}
+  .tach-pager .info b{color:#a8071a;}
+  .tach-pager button{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border-c);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#333;}
+  .tach-pager button:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
+  .tach-pager button:disabled{opacity:.4;cursor:default;}
+  .tach-pager button.cur{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600;}
+  /* accordion phân bổ chi tiết */
+  .tach-acc-item{border:1px solid var(--border-c);border-radius:9px;margin-bottom:8px;overflow:hidden;background:#fff;}
+  .tach-acc-hd{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;background:#faf9f7;}
+  .tach-acc-hd:hover{background:#f4f2ef;}
+  .tach-acc-item.open>.tach-acc-hd{background:var(--brand-bg);}
+  .tach-acc-hd .ac-caret{transition:transform .18s;color:#999;flex-shrink:0;}
+  .tach-acc-item.open>.tach-acc-hd .ac-caret{transform:rotate(90deg);color:var(--brand);}
+  .tach-acc-hd .ac-title{font-weight:600;font-size:13px;color:#333;}
+  .tach-acc-item.open>.tach-acc-hd .ac-title{color:var(--brand);}
+  .tach-acc-hd .ac-sub{font-size:11px;margin-left:auto;}
+  .tach-acc-hd .ac-sub.ok{color:#2e7d32;}
+  .tach-acc-hd .ac-sub.warn{color:#d48806;}
+  .tach-acc-hd .ac-sub.empty{color:#999;}
+  .tach-acc-body{display:none;padding:12px 14px;border-top:1px solid var(--border-c);}
+  .tach-acc-item.open>.tach-acc-body{display:block;}
+  .tach-detail-card{background:#fff;border:1px solid var(--border-c);border-radius:8px;padding:9px 11px;margin-bottom:9px;}
+  .tach-detail-card .cardlbl{font-size:11px;color:#999;margin-bottom:5px;}
+  .tach-tong-wrap{border:1px solid var(--border-c);border-radius:10px;padding:12px;margin-top:8px;background:#faf9f7;}
+  .tach-goc-plain{background:#fff;border:1px solid var(--border-c);border-radius:10px;padding:12px 14px;margin-bottom:6px;}
+  .tach-goc-plain .tach-goc-title{font-weight:700;color:var(--brand);font-size:14px;margin-bottom:10px;}
+  /* dropdown biên lai chọn nhiều */
+  .bl-select{position:relative;}
+  .bl-box{border:1px solid var(--border-c);border-radius:6px;padding:5px 8px;min-height:32px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;cursor:pointer;background:#fff;}
+  .bl-box .bl-caret{margin-left:auto;color:#999;font-size:11px;}
+  .bl-panel{display:none;position:absolute;top:100%;left:0;right:0;z-index:30;background:#fff;border:1px solid var(--border-c);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.12);margin-top:3px;padding:5px;max-height:220px;overflow-y:auto;}
+  .bl-panel.open{display:block;}
+  .bl-panel label{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:5px;font-size:12px;cursor:pointer;}
+  .bl-panel label:hover{background:var(--row-label);}
+  .modal-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border-c);}
+  .modal-h .t{font-weight:700;font-size:15px;color:var(--brand);}
+  .modal-x{cursor:pointer;color:#888;display:flex;}
+  .modal-b{padding:18px 20px;}
+  .modal-xl{display:flex;flex-direction:column;max-height:92vh;}
+  .modal-xl .modal-b{overflow-y:auto;flex:1 1 auto;}
+  .modal-xl .modal-h,.modal-xl .modal-f{flex:0 0 auto;}
+  .case-hd{background:var(--row-label);border-radius:8px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 20px;font-size:12.5px;}
+  .case-hd .lbl-b{color:var(--brand);font-weight:600;}
+  .case-hd .val-g{color:#2e7d32;font-weight:600;}
+  .dropdown-menu{position:absolute;background:#fff;border:1px solid var(--border-c);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px;z-index:40;min-width:340px;display:none;}
+  .dropdown-menu.open{display:block;}
+  .dropdown-menu .item{padding:10px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;}
+  .dropdown-menu .item:hover{background:var(--brand-bg);color:var(--brand);}
+  .pc-btns{position:relative;}
+  .modal-f{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-c);}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;}
+  .fld{display:flex;flex-direction:column;gap:5px;}
+  .fld.full{grid-column:1/-1;}
+  .fld label{font-size:12.5px;color:#555;}
+  .req{color:var(--brand);}
+  .fld input,.fld select,.fld textarea{border:1px solid var(--border-c);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;}
+  #m-don-xuly .fld textarea,#m-don-xuly .fld select,#m-don-xuly .fld input:not([type=radio]):not([type=checkbox]){width:100%;box-sizing:border-box;display:block;}
+  #m-don-xuly .fld textarea{resize:vertical;min-height:56px;}
+  #m-don-xuly .dxl-radio input,#m-don-xuly .dxl-inline-radio input{width:auto;display:inline-block;}
+  .fld select{max-width:100%;text-overflow:ellipsis;}
+  #dxl-mien-canccu{white-space:normal;}
+  .modal-b{overflow-x:hidden;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border-c);border-radius:6px;padding:8px 12px;}
+  .switch{width:38px;height:20px;border-radius:12px;background:#ccc;position:relative;cursor:pointer;flex-shrink:0;}
+  .switch::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s;}
+  .switch.on{background:var(--brand);}
+  .switch.on::after{left:20px;}
+  .hint{font-size:11.5px;color:var(--muted);}
+  @media (max-width:900px){.side{display:none;}.info-cols{grid-template-columns:1fr;gap:16px;}.fgrid{grid-template-columns:1fr;}}
+
+
+  /* ===== PROTOTYPE ROUTER + EDIT 2 (badge quá hạn) ===== */
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .badge-overdue{background:#FDECEC;color:#8c0011;border:1px solid #f3b6ba;}
+  .flag-do{background:#FDECEC;color:#c0392b;font-weight:700;border:1px solid #f3b5b5;}
+  .nva-line{margin-top:6px;font-size:12.5px;line-height:1.5;}
+  .nva-label{color:var(--muted);font-weight:500;}
+  .flag-do-line .nva-label{color:#c0392b;}
+  .flag-xanh-line .nva-label{color:#1f8a4c;}
+  .nva-link{color:#8c0011;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .nva-link:hover{opacity:.75;}
+  .nva-code{font-weight:600;color:#444;}
+  .flag-xanh{background:#E7F6EC;color:#1f8a4c;font-weight:700;border:1px solid #B7E1C4;}
+  .badge-remain{background:#FEF3E2;color:#b26a00;border:1px solid #f2d19b;}
+  .badge-warn{background:#FEF3E2;color:#b26a00;border:1px solid #f2d19b;padding:2px 8px;border-radius:10px;font-size:11.5px;}
+  .badge-ok{background:#E7F5EC;color:#1a7f4b;border:1px solid #b8e0c7;padding:2px 8px;border-radius:10px;font-size:11.5px;}
+  .badge-muted{background:#EFF0F2;color:#555;border:1px solid #dcdee2;padding:2px 8px;border-radius:10px;font-size:11.5px;}
+  .docblk{border:1px solid #e3e6ea;border-radius:8px;margin-bottom:10px;overflow:hidden;}
+  .ky-actions{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+  .ky-btn{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;border:1px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
+  .ky-btn.primary{background:#8C0011;color:#fff;}
+  .ky-btn.ghost{background:#fff;color:#374151;border-color:#d0d5dd;}
+  .ky-btn.danger{background:#fff;color:#c0392b;border-color:#e3a9a4;}
+  .ky-btn.disabled{background:#f1f2f4;color:#9aa2b1;cursor:default;border-color:#e3e6ea;}
+  .ky-btn:hover:not(.disabled){opacity:.9;}
+  .ky-signed{font-size:11.5px;font-weight:700;color:#1f8a4c;}
+  .ky-vaitro-bar{display:flex;align-items:center;gap:9px;background:#FFF8E8;border:1px solid #f2d19b;border-radius:8px;padding:7px 11px;margin:10px 0;font-size:12px;}
+  .ky-vaitro-bar b{color:#8a5a06;}
+  .tach-tl-box{border:1px solid #e6dede;border-radius:8px;overflow:hidden;}
+  .tach-tl-grp{border-bottom:1px solid #efe8e8;}
+  .tach-tl-grp:last-child{border-bottom:none;}
+  .tach-tl-ghd{display:flex;align-items:center;gap:7px;padding:8px 12px;background:#fbf4f5;cursor:pointer;font-size:13px;color:#333;}
+  .tach-tl-ghd:hover{background:#f6ebec;}
+  .tach-tl-ghd .hs-tree-count{margin-left:2px;}
+  .tach-fol-btn{margin-left:auto;font-size:11px;padding:3px 9px;border:1px solid #d8b0b5;background:#fff;color:#8c0011;border-radius:5px;cursor:pointer;}
+  .tach-fol-btn:hover{background:#8c0011;color:#fff;}
+  .tach-tl-tbl{margin:0;}
+  .tach-tl-scroll{overflow-x:auto;width:100%;}
+  .tach-tl-tbl{min-width:100%;}
+  .tach-tl-tbl th.stick,.tach-tl-tbl td.stick{position:sticky;left:0;z-index:2;background:#fff;min-width:240px;max-width:240px;box-shadow:2px 0 4px -2px rgba(0,0,0,.12);}
+  .tach-tl-tbl th.stick{background:#faf7f7;z-index:3;}
+  .tach-tl-tbl th{white-space:nowrap;}
+  .tach-tl-tbl th:not(.stick),.tach-tl-tbl td:not(.stick){min-width:96px;}
+  .tl-cell{width:78px;padding:5px 4px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .12s;}
+  .tl-cell.tl-khong{background:#f1eeee;color:#9a8f90;border-color:#e3dcdc;}
+  .tl-cell.tl-khong:hover{background:#e8e3e3;}
+  .tl-cell.tl-goc{background:#8c0011;color:#fff;border-color:#8c0011;}
+  .tl-cell.tl-sao{background:#E7F6EC;color:#1f8a4c;border-color:#B7E1C4;}
+  .tl-cell.tl-sao:hover{background:#d6efdf;}
+  .tach-tl-tbl th{background:#faf7f7;font-size:11.5px;}
+  .tach-tl-tbl td{font-size:12.5px;vertical-align:middle;}
+  .tach-tl-tbl select{height:30px;font-size:12px;padding:0 6px;width:100%;}
+  #tach-yc-body select{height:32px;font-size:12.5px;padding:0 8px;border:1px solid var(--border-c);border-radius:6px;background:#fff;outline:none;width:100%;max-width:100%;color:#333;}
+  #tach-yc-body td{vertical-align:middle;}
+  .tach-tl-tbl select{border:1px solid var(--border-c);border-radius:6px;background:#fff;outline:none;color:#333;}
+  #m-tachvuan .datepick,#m-tachvuan input[type=number]{height:34px;font-size:13px;padding:0 10px;border:1px solid var(--border-c);border-radius:6px;outline:none;background:#fff;color:#333;}
+  /* ==== [UPDATE tách vụ án] các phần bổ sung theo phân tích luật Điều 42/203 ==== */
+  .upd-badge{display:inline-block;background:#1677ff;color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.4px;padding:1px 6px;border-radius:8px;vertical-align:middle;margin-left:6px;text-transform:uppercase;}
+  /* multi-select người bị yêu cầu (chọn nhiều) */
+  .msel-bi{border:1px solid var(--border-c);border-radius:6px;padding:6px 8px;background:#fff;display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:center;}
+  .msel-bi label{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;background:var(--row-label);border-radius:12px;padding:2px 10px;cursor:pointer;color:#333;}
+  .msel-bi label:hover{background:#efeae2;}
+  .msel-bi input{margin:0;transform:scale(.9);}
+  .msel-bi .msel-hint{color:#999;font-size:11.5px;}
+  .upd-ring{position:relative;}
+  .upd-ring::before{content:"";position:absolute;left:-8px;top:-6px;bottom:-6px;width:3px;border-radius:3px;background:#1677ff;}
+  #tach-qhpl-body select{height:32px;font-size:12.5px;padding:0 8px;border:1px solid var(--border-c);border-radius:6px;background:#fff;outline:none;width:100%;color:#333;}
+  #tach-qhpl-body td{vertical-align:middle;font-size:12.5px;}
+  .tach-qhpl-list{margin:0;padding-left:16px;font-size:12px;color:#555;line-height:1.5;}
+  .tach-lban-chip{display:inline-block;background:var(--brand-bg);color:var(--brand);border-radius:6px;padding:2px 9px;font-size:11.5px;font-weight:700;}
+  .tach-warn-box{background:#FFF7E6;border:1px solid #FFD591;border-radius:8px;padding:10px 12px;margin:8px 0 0;font-size:12px;color:#8a6d3b;display:none;}
+  .tach-warn-box.show{display:block;}
+  .tach-warn-box b{color:#a8071a;}
+  .tach-warn-box ul{margin:6px 0 0;padding-left:18px;}
+  #m-tachvuan .datepick[data-tach-cbxx]{background:#f6faff;}
+  .don-stepper{display:flex;align-items:center;margin:8px 0 4px;padding:2px 0;}
+  .don-stepper .stp{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;text-align:center;}
+  .don-stepper .stp-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid #d8d0d1;background:#fff;color:#9a8f90;}
+  .don-stepper .stp-lb{font-size:10.5px;line-height:1.25;color:#9a8f90;max-width:80px;}
+  .don-stepper .stp.done .stp-dot{background:#2e7d32;border-color:#2e7d32;color:#fff;}
+  .don-stepper .stp.done .stp-lb{color:#2e7d32;}
+  .don-stepper .stp.cur .stp-dot{background:#8c0011;border-color:#8c0011;color:#fff;}
+  .don-stepper .stp.cur .stp-lb{color:#8c0011;font-weight:700;}
+  .don-stepper .stp-line{flex:1;height:2px;background:#d8d0d1;margin:0 2px;margin-bottom:16px;min-width:20px;}
+  .don-stepper .stp-line.done{background:#2e7d32;}
+  .docblk-h{background:#fbf4f5;color:#8c0011;font-weight:700;font-size:12.5px;padding:8px 12px;border-bottom:1px solid #eee;}
+  .docs-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .docs-tbl th{background:#f7f8fa;text-align:left;padding:7px 10px;font-size:10.5px;text-transform:uppercase;color:#5b6570;border-bottom:1px solid #eee;}
+  .docs-tbl td{padding:7px 10px;border-bottom:1px solid #f2f3f5;}
+  .docs-empty{padding:10px 12px;color:#888;font-style:italic;font-size:12px;}
+
+  .btn-overdue{display:inline-block;margin-top:6px;margin-left:2px;background:#fff;border:1px solid var(--brand);color:var(--brand);
+    font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;cursor:pointer;font-family:inherit;}
+  .btn-overdue:hover{background:var(--brand);color:#fff;}
+  .btn-mini-danger{background:#fff;border:1px solid var(--brand);color:var(--brand);font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .btn-mini-danger:hover{background:var(--brand);color:#fff;}
+  .dd-wrap{position:relative;display:inline-block;}
+  .dd-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;z-index:50;background:#fff;border:1px solid var(--border-c);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);min-width:180px;padding:4px;}
+  .dd-wrap.open .dd-menu{display:block;}
+  .dd-item{padding:9px 14px;font-size:13px;border-radius:5px;cursor:pointer;color:var(--text);}
+  .dd-grp{padding:9px 12px 4px;font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.3px;border-top:1px solid var(--border-c);margin-top:4px;}
+  .dd-grp:first-child{border-top:none;margin-top:0;}
+  .dd-item:hover{background:#f1efe8;}
+  .attach-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .inline-form{border:1px dashed var(--brand);border-radius:8px;padding:14px;margin-top:10px;background:#FCF7F8;}
+  .status-cell{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .status-cell .status-extra{display:inline-flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap;}
+  .lnk-bienlai{color:var(--link);text-decoration:underline;cursor:pointer;font-weight:600;}
+  .tl-party-list{min-height:36px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:#f8f6f6;color:var(--ink);line-height:1.55;}
+  .tl-party-list .tl-party-item{display:block;}
+  .tl-party-list .tl-party-item + .tl-party-item{margin-top:2px;padding-top:2px;border-top:1px dashed var(--line);}
+  .pdf-sheet{background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);max-width:480px;margin:0 auto;}
+  .sub-h{font-weight:700;color:var(--text);font-size:13.5px;margin:16px 0 8px;}
+  .tg-layout{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start;}
+  @media (max-width:900px){.tg-layout{grid-template-columns:1fr;}}
+  .modal-tg-wide .tg-layout{grid-template-columns:2fr 1fr;}
+  /* Cho phép cột form co lại đúng phần 2/3 (grid item mặc định min-width:auto) */
+  .tg-left{min-width:0;}
+  /* Bảng giấy tờ tùy thân không áp min-width 900px của table chung, luôn nằm trong cột form */
+  #tg-gt-tbl, .gt-tbl{min-width:0;width:100%;table-layout:fixed;}
+  #tg-gt-tbl td, #tg-gt-tbl th, .gt-tbl td, .gt-tbl th{word-break:break-word;overflow-wrap:anywhere;}
+  #tg-gt-tbl input, #tg-gt-tbl select, .gt-tbl input, .gt-tbl select{width:100%;box-sizing:border-box;}
+  #tg-gt-tbl .gt-err, .gt-tbl .gt-err{display:none;color:#c0392b;font-size:11px;line-height:1.3;margin-top:3px;}
+  /* Tooltip cho các icon thao tác (Cập nhật / Xóa / Lưu / Hủy) */
+  .tip{position:relative;display:inline-flex;}
+  .tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;font-size:11px;line-height:1;white-space:nowrap;padding:5px 8px;border-radius:6px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s;z-index:60;}
+  .tip::before{content:"";position:absolute;bottom:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1f2937;opacity:0;visibility:hidden;transition:opacity .12s;z-index:60;}
+  .tip:hover::after, .tip:hover::before{opacity:1;visibility:visible;}
+  .tg-ds-side{border:1px solid var(--border-c);border-radius:10px;padding:14px;background:#fff;position:sticky;top:10px;max-height:calc(100vh - 180px);overflow:auto;}
+  .tg-ds-h{font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .tg-ds-count{background:var(--brand);color:#fff;border-radius:12px;padding:1px 9px;font-size:12px;}
+  .tg-ds-item{border:1px solid var(--border-c);border-left:3px solid var(--brand);border-radius:8px;padding:9px 34px 9px 11px;margin-bottom:9px;position:relative;cursor:pointer;transition:background .12s,box-shadow .12s;}
+  .tg-ds-item:hover{background:#faf7f2;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+  .tg-ds-item.editing{border-color:var(--brand);background:var(--brand-bg);}
+  .tg-ds-badge{display:inline-block;background:var(--brand-bg);color:var(--brand);font-size:11px;font-weight:700;border-radius:4px;padding:1px 8px;margin-bottom:5px;}
+  .tg-ds-name{font-weight:700;font-size:13px;line-height:1.35;}
+  .tg-ds-sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .tg-ds-acts{position:absolute;top:8px;right:8px;display:flex;gap:6px;}
+  .tg-ds-edit,.tg-ds-del{cursor:pointer;color:#999;display:inline-flex;padding:2px;border-radius:5px;}
+  .tg-ds-edit:hover{color:var(--brand);background:#fff;}
+  .tg-ds-del:hover{color:#c0392b;background:#fff;}
+  .tg-edit-banner{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--brand-bg);border:1px solid #f0c7cc;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12.5px;color:var(--brand);}
+  .tg-edit-banner.on{display:flex;}
+  .tg-edit-banner .x{cursor:pointer;font-weight:700;}
+  .dp-pop{position:absolute;z-index:9999;background:#fff;border:1px solid var(--border-c);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:12px;width:260px;display:none;}
+  .dp-pop.open{display:block;}
+  .dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .dp-head b{font-size:13.5px;}
+  .dp-nav{cursor:pointer;border:none;background:transparent;padding:4px 8px;border-radius:6px;color:var(--brand);}
+  .dp-nav:hover{background:var(--brand-bg);}
+  .dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .dp-dow{font-size:11px;text-align:center;color:var(--muted);padding:4px 0;font-weight:600;}
+  .dp-dow.we{color:#c0392b;}
+  .dp-cell{text-align:center;font-size:12.5px;padding:6px 0;border-radius:6px;cursor:pointer;}
+  .dp-cell:hover{background:var(--brand-bg);}
+  .dp-cell.we{color:#c0392b;}
+  .dp-cell.other{color:#c9c4bb;}
+  .dp-cell.sel{background:var(--brand);color:#fff;}
+  .dp-foot{display:flex;justify-content:space-between;margin-top:8px;}
+  .dp-foot button{border:none;background:transparent;color:var(--brand);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:6px;}
+  .dp-foot button:hover{background:var(--brand-bg);}
+  /* Danh sách vụ việc sơ thẩm - layout phong phú */
+  #screen-list .tbl-scroll table tbody tr{border-top:1px solid #d6d3ca;}
+  #screen-list .tbl-scroll table td{padding-top:16px;padding-bottom:16px;}
+  #screen-list .tbl-scroll table th, #screen-list .tbl-scroll table td{border-right:1px solid #e2dfd7;}
+  #screen-list .tbl-scroll table th:last-child, #screen-list .tbl-scroll table td:last-child{border-right:none;}
+  #screen-list .tbl-scroll table tbody tr:nth-child(even){background:#F7F6F3;}
+  #screen-list .tbl-scroll table tbody tr:nth-child(even) .col-act{background:#F7F6F3;}
+  td.row-bar{position:relative;}
+  td.row-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+  td.row-bar.rb-green::before{background:#2e9e4f;}
+  td.row-bar.rb-orange::before{background:#e08a1e;}
+  td.row-bar.rb-red::before{background:#c0392b;}
+  td.row-bar.rb-grey::before{background:#cac7bd;}
+  td[data-label="Hồ sơ / Ngày TL / Loại"]{text-align:center;vertical-align:top;}
+  td[data-label="Hồ sơ / Ngày TL / Loại"] .caseno{display:inline-block;font-weight:700;color:var(--brand);margin-bottom:4px;}
+  .hs-meta{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .hs-sub{font-size:11.5px;color:var(--muted);margin-top:6px;}
+  td[data-label="Hồ sơ / Ngày TL / Loại"] .badge{display:inline-block;margin:2px 0;}
+  .cell-vv{vertical-align:top;text-align:center;}
+  .cell-vv div{margin-bottom:3px;font-size:13px;}
+  .qhpl-tag{display:inline-block;margin-top:6px;background:#FEF7E8;color:#8a6d3b;border-radius:6px;padding:3px 12px;font-size:12.5px;font-style:italic;}
+  .cell-ng{vertical-align:top;}
+  .cell-ng .ng-role{font-size:10.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+  .cell-ng .ng-role:first-child{margin-top:0;}
+  .cell-ng .ng-name{font-size:13px;font-weight:600;color:var(--text);}
+  .cell-tt{vertical-align:top;text-align:center;}
+  .cell-tt .tt-row{margin-top:6px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap;}
+  .pill{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;}
+  .pill-b{background:#1a56c4;}
+  .pill-r{background:var(--brand);}
+  .tt-box{margin-top:8px;border:1px solid var(--border-c);border-radius:8px;padding:7px 9px;text-align:left;background:#FBFAF7;}
+  .tt-box-h{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);}
+  .tt-box-t{font-size:12.5px;font-weight:600;color:var(--text);margin-top:2px;}
+  .tt-box-d{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  td.col-act{vertical-align:middle;}
+  .cqnn-layout{display:block;}
+  @media (max-width:900px){.cqnn-layout{grid-template-columns:1fr;}}
+  .cqnn-step{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text);font-size:13.5px;margin:16px 0 10px;}
+  .cqnn-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;}
+  .cqnn-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cqnn-cards.vertical{grid-template-columns:1fr;}
+  .cqnn-card{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border-c);border-radius:8px;padding:12px;cursor:pointer;}
+  .cqnn-card.selected{border-color:var(--brand);background:var(--brand-bg);}
+  .cqnn-card input{margin-top:3px;}
+  .cqnn-desc{font-size:12px;color:var(--muted);margin-top:3px;font-weight:400;}
+  .cqnn-side{border:1px solid var(--border-c);border-radius:10px;padding:14px;background:#fff;align-self:start;position:sticky;top:10px;}
+  .cqnn-side-h{font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cqnn-count{background:var(--brand);color:#fff;border-radius:12px;padding:1px 9px;font-size:12px;}
+  .cqnn-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .cqnn-kpi{border:1px solid var(--border-c);border-radius:8px;padding:8px 10px;}
+  .cqnn-kpi-n{font-size:18px;font-weight:800;color:var(--brand);}
+  .cqnn-kpi-l{font-size:11px;color:var(--muted);}
+  .cqnn-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:24px 8px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .cqnn-item{border:1px solid var(--border-c);border-left:3px solid var(--brand);border-radius:8px;padding:10px 12px;margin-bottom:10px;position:relative;}
+  .cqnn-item-badge{display:inline-block;background:var(--brand-bg);color:var(--brand);font-size:11px;font-weight:700;border-radius:4px;padding:1px 8px;margin-bottom:6px;}
+  .cqnn-item-name{font-weight:700;font-size:13px;line-height:1.4;}
+  .cqnn-item-sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .cqnn-item-box{background:#FBF7EF;border-radius:6px;padding:6px 8px;margin:6px 0;font-size:11.5px;}
+  .cqnn-item-box b{color:var(--brand);display:block;font-size:10.5px;text-transform:uppercase;}
+  .cqnn-item-acts{position:absolute;top:10px;right:10px;display:flex;gap:8px;}
+  .cqnn-item-acts span{cursor:pointer;color:#888;}
+  .tc-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .tc-chip{display:inline-flex;align-items:center;gap:6px;background:#F1EFE8;border:1px solid var(--border-c);border-radius:14px;padding:4px 6px 4px 12px;font-size:12.5px;}
+  .tc-chip button{background:none;border:none;cursor:pointer;color:#c0392b;font-size:14px;line-height:1;padding:0 2px;}
+  .tg-sub{grid-column:1/-1;font-weight:700;color:var(--brand);font-size:13px;margin:8px 0 2px;padding-bottom:6px;border-bottom:1px solid var(--border-c);}
+  /* Section con có bo viền trong khối Thông tin người đại diện */
+  .tg-section{border:1px solid var(--border-c);border-radius:10px;padding:12px 14px 14px;margin-bottom:14px;background:#fdfdfc;}
+  .tg-section > .tg-sec-title{font-weight:700;color:var(--brand);font-size:13px;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border-c);}
+  .tg-section .tg-sub{display:none;}
+  .tc-row1{display:flex;gap:14px;align-items:flex-start;}
+  .tc-col-sub1{flex:0 0 240px;display:flex;flex-direction:column;gap:5px;}
+  .tc-col-nguoi{flex:1;display:flex;flex-direction:column;gap:5px;}
+  .tc-col-nguoi input{height:34px;font-size:13px;padding:0 12px;border:1px solid var(--border-c);border-radius:6px;outline:none;width:100%;box-sizing:border-box;}
+  @media (max-width:560px){ .tc-row1{flex-direction:column;} .tc-col-sub1{flex:1 1 auto;width:100%;} }
+  .rkn-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;}
+  .rkn-check input{width:16px;height:16px;cursor:pointer;}
+  .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+  @media (max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{border:1px solid var(--border-c);border-radius:10px;padding:14px 16px;background:#fff;}
+  .kpi-num{font-size:24px;font-weight:800;line-height:1.1;}
+  .kpi-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+  .rkn-progress{border:1px solid var(--border-c);border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.9;}
+  .rkn-bar{height:8px;background:#eee;border-radius:5px;overflow:hidden;margin-top:8px;}
+  .rkn-bar-fill{height:100%;background:var(--brand);}
+  .lbl{display:flex;flex-direction:column;gap:5px;}
+  .lydo-note{display:flex;align-items:flex-start;gap:8px;background:#f7f6f3;border:1px solid var(--border-c);border-radius:6px;padding:11px 13px;margin-top:16px;font-size:12px;color:#666;line-height:1.5;}
+  .dxl-radio-group{display:flex;flex-direction:column;gap:2px;margin-top:4px;}
+  .dxl-radio{display:flex;align-items:flex-start;gap:9px;font-weight:400;font-size:13px;line-height:1.5;padding:9px 11px;border:1px solid var(--border-c);border-radius:7px;cursor:pointer;transition:background .12s,border-color .12s;}
+  .dxl-radio:hover{background:#faf9f7;}
+  .dxl-radio input{width:auto;margin-top:2px;flex-shrink:0;}
+  .dxl-radio span .muted{font-size:11.5px;}
+  .dxl-radio.is-disabled{opacity:.42;cursor:not-allowed;background:#f7f7f8;}
+  .dxl-dk-list{display:flex;flex-direction:column;gap:7px;}
+  .dxl-dk-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.4;cursor:pointer;}
+  .dxl-dk-item input{width:auto;margin-top:2px;flex-shrink:0;}
+  .dxl-radio.is-checked{border-color:var(--brand);background:#fdf5f6;}
+  .dxl-radio-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  @media(max-width:720px){ .dxl-radio-2col{grid-template-columns:1fr;} }
+  .dxl-inline-radio{display:flex;align-items:center;gap:22px;padding-top:4px;flex-wrap:wrap;}
+  .dxl-inline-radio label{display:flex;align-items:center;gap:7px;font-weight:400;font-size:13px;cursor:pointer;}
+  .dxl-inline-radio input{width:auto;}
+  /* ===== Combobox loại biểu mẫu ===== */
+  .combo{position:relative;flex:1;min-width:360px;max-width:560px;}
+  .combo-field{position:relative;display:flex;align-items:center;}
+  .combo-field input{width:100%;height:36px;font-size:13px;padding:0 34px 0 12px;border:1px solid var(--border-c);border-radius:6px;outline:none;background:#fff;cursor:pointer;}
+  .combo-field input:focus{border-color:var(--brand);}
+  .combo-caret{position:absolute;right:10px;color:#888;pointer-events:none;transition:transform .15s;}
+  .combo.open .combo-caret{transform:rotate(180deg);}
+  .combo-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:40;
+    background:#fff;border:1px solid var(--border-c);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);
+    max-height:320px;overflow-y:auto;padding:4px;}
+  .combo.open .combo-panel{display:block;}
+  .combo-opt{padding:8px 12px;font-size:13px;border-radius:5px;cursor:pointer;color:var(--text);line-height:1.4;}
+  .combo-opt:hover{background:#f1efe8;}
+  .combo-opt.sel{background:var(--brand);color:#fff;}
+  .combo-empty{padding:12px;font-size:12.5px;color:#999;text-align:center;}
+  .a-eye{cursor:pointer;}
+  .caseno{cursor:pointer;}
+  .crumb-link{color:var(--link);cursor:pointer;}
+  .titlebar-actions{display:flex;gap:10px;margin-left:8px;flex-shrink:0;}
+  .status-badge{margin-left:auto;}
+  @media (max-width:900px){ .titlebar-actions{flex-wrap:wrap;} }
+
+  /* ===== Ghim hồ sơ (pinned case header) ===== */
+  .case-ghim{position:relative;margin:2px 0 16px;}
+  .ghim-strip{position:relative;display:flex;align-items:center;gap:14px;
+    background:linear-gradient(120deg,#8c0011 0%,#7a000f 55%,#a30d1a 100%);
+    border-radius:10px;padding:12px 16px;color:#fff;
+    box-shadow:0 4px 14px rgba(140,0,17,.22);overflow:hidden;}
+  .ghim-strip::after{content:"";position:absolute;top:10px;bottom:10px;left:0;width:5px;border-radius:0 4px 4px 0;
+    background:linear-gradient(#fff,#ffd7db);}
+  .ghim-back{position:relative;z-index:2;width:34px;height:34px;flex-shrink:0;border-radius:8px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);transition:background .15s;}
+  .ghim-back:hover{background:rgba(255,255,255,.26);}
+  .ghim-body{flex:1;min-width:0;position:relative;z-index:2;}
+  .ghim-crumb{display:flex;align-items:center;gap:7px;font-size:11px;color:#f6c3c9;margin-bottom:8px;flex-wrap:wrap;font-weight:500;}
+  .ghim-crumb a{color:#f6c3c9;text-decoration:none;cursor:pointer;transition:color .12s;}
+  .ghim-crumb a:hover{color:#fff;}
+  .ghim-crumb .sep{opacity:.5;font-size:12px;}
+  .ghim-crumb b{color:#fff;font-weight:700;background:rgba(255,255,255,.16);padding:1.5px 10px;border-radius:11px;}
+  .ghim-eyebrow{display:flex;align-items:center;gap:8px;font-size:12px;color:#ffdfe3;margin-bottom:4px;flex-wrap:wrap;}
+  .ghim-tag{background:#fff;color:#8c0011;font-weight:800;letter-spacing:.3px;border-radius:5px;padding:2px 9px;font-size:11.5px;}
+  .ghim-dot{color:#ffb3bb;}
+  .ghim-body h1{margin:0;font-size:17px;font-weight:800;line-height:1.3;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.15);}
+  .ghim-right{position:relative;z-index:2;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+  .ghim-status{display:flex;flex-direction:column;align-items:center;gap:7px;}
+  .ghim-right .status-badge{margin:0;background:transparent;color:#fff;border:2.5px solid rgba(255,255,255,.92);border-radius:7px;
+    padding:7px 15px;font-size:12.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;line-height:1.15;white-space:nowrap;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.32),0 1px 3px rgba(0,0,0,.18);transform:rotate(-7deg);text-shadow:0 1px 1px rgba(0,0,0,.14);}
+  .ghim-right .status-badge.st-done{border-color:#c8f2d4;color:#eafff0;}
+  .ghim-right .status-badge.st-pending{border-color:#ffe0a8;color:#fff4df;}
+  .deadline-chip{padding:4px 13px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;letter-spacing:.2px;line-height:1.2;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);}
+  .deadline-chip.dl-over{background:#fff;color:#b00018;}
+  .deadline-chip.dl-left{background:#fff7e6;color:#8a5a00;}
+  .deadline-chip.dl-done{background:rgba(255,255,255,.16);color:#eafff0;border:1px solid rgba(255,255,255,.4);}
+  .ghim-actions{display:flex;gap:8px;}
+  .ghim-actions .btn-ghost{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4);color:#fff;}
+  .ghim-actions .btn-ghost:hover{background:rgba(255,255,255,.24);}
+  .ghim-actions .btn-primary{background:#fff;color:#8c0011;border:1px solid #fff;}
+  .ghim-actions .btn-primary:hover{background:#ffe3e6;}
+  @media (max-width:1024px){
+    .ghim-strip{flex-wrap:wrap;}
+    .ghim-right{width:100%;justify-content:space-between;}
+  }
+
+
+  #m-tg #tc-wrap-uql textarea,#m-tg #tc-wrap-uql select,#m-tg #tc-wrap-phamvi textarea,
+  #m-tg #otc-wrap-uql textarea,#m-tg #otc-wrap-uql select,#m-tg #otc-wrap-phamvi textarea{width:100%;box-sizing:border-box;display:block;}
+
+
+/* ============================================================
+   PHÂN HỆ VIỆC DÂN SỰ — bổ sung, dùng lại token của hệ thống
+   ============================================================ */
+.vsub{color:var(--muted);font-size:12.5px;line-height:1.6;margin:-6px 0 14px;max-width:940px;}
+.vtp{display:none;} .vtp.on{display:block;}
+.vrow{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;}
+.vsep{border:none;border-top:1px dashed var(--border-c);margin:14px 0;}
+.vright{margin-left:auto;}
+
+/* Ghi chú nghiệp vụ */
+.vnote{border:1px solid #f2d19b;background:#FEF9EF;border-radius:8px;padding:10px 13px;font-size:12.5px;
+  line-height:1.6;color:#6b4500;margin-bottom:12px;}
+.vnote.info{border-color:#c9dcfa;background:#F5F8FF;color:#1a3a70;}
+.vnote.gray{border-color:var(--border-c);background:#F7F6F3;color:#555;}
+.vnote b{color:inherit;}
+
+/* Badge trạng thái đặc tả */
+.vbd{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:11px;font-size:11px;
+  font-weight:700;white-space:nowrap;line-height:1.7;cursor:help;}
+.vbd-xn{background:#FEF3E2;color:#b26a00;border:1px solid #f2d19b;}
+.vbd-pa{background:#E8F0FE;color:#1a56c4;border:1px solid #c3d9fb;}
+.vbd-pv{background:#EFF0F2;color:#555;border:1px solid #dcdee2;}
+.vbd-dt{background:#F3E8FB;color:#6b21a8;border:1px solid #ddcbf6;}
+
+/* Công việc tiếp theo */
+.vna{display:inline-flex;align-items:flex-start;gap:7px;font-weight:600;font-size:12.5px;line-height:1.45;text-align:left;}
+.vna .d{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.vna.n-red{color:#c0392b;} .vna.n-red .d{background:#c0392b;}
+.vna.n-amber{color:#b26a00;} .vna.n-amber .d{background:#e08a1e;}
+.vna.n-blue{color:#1a56c4;} .vna.n-blue .d{background:#1a56c4;}
+.vna.n-gray{color:#777;} .vna.n-gray .d{background:#b6b2a9;}
+
+/* Thẻ khung nghiệp vụ */
+.vkc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:14px;margin-bottom:6px;}
+.vkc{border:1px solid var(--border-c);border-top:3px solid var(--brand);border-radius:10px;padding:15px 16px;
+  background:#fff;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:box-shadow .15s,transform .15s;}
+.vkc:hover{box-shadow:0 6px 18px rgba(140,0,17,.10);transform:translateY(-1px);}
+.vkc .t{font-weight:800;font-size:14px;color:var(--brand);line-height:1.35;}
+.vkc .d{font-size:12px;color:#666;line-height:1.65;flex:1;}
+.vkc .f{display:flex;gap:20px;border-top:1px solid var(--border-c);padding-top:9px;}
+.vkc .f .l{font-size:11px;color:var(--muted);}
+.vkc .f .n{font-size:19px;font-weight:800;color:var(--brand);line-height:1.15;}
+
+/* Timeline nghiệp vụ */
+.vtl{position:relative;padding-left:26px;}
+.vtl:before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:#e6e3dd;}
+.vtl .i{position:relative;padding-bottom:16px;}
+.vtl .i:last-child{padding-bottom:0;}
+.vtl .i:before{content:"";position:absolute;left:-22px;top:3px;width:14px;height:14px;border-radius:50%;
+  background:#fff;border:2px solid #d8d5cf;}
+.vtl .i.done:before{background:var(--brand);border-color:var(--brand);}
+.vtl .i.cur:before{background:#fff;border-color:var(--brand);box-shadow:0 0 0 4px rgba(140,0,17,.16);}
+.vtl .t{font-weight:700;font-size:13px;color:#2c2c2c;}
+.vtl .i.cur .t{color:var(--brand);}
+.vtl .d{font-size:12px;color:var(--muted);line-height:1.6;margin-top:2px;}
+.vtl .b{margin-top:8px;padding:9px 12px;border:1px solid var(--border-c);border-left:3px solid var(--brand);
+  border-radius:0 6px 6px 0;background:#FBFAF7;font-size:12px;line-height:1.6;color:#444;}
+
+/* Đồng hồ đếm ngược */
+.vcd-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.vcd{border:1px solid var(--border-c);border-radius:10px;padding:11px 15px;min-width:196px;background:#fff;}
+.vcd .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.vcd .v{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px;line-height:1.25;}
+.vcd .s{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.45;}
+.vcd.ok .v{color:#1f8a4c;} .vcd.warn .v{color:#b26a00;} .vcd.over .v{color:#c0392b;}
+.vcd.over{border-color:#f3b6ba;background:#FFF8F8;}
+
+/* Checklist hồ sơ */
+.vck{display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border:1px solid var(--border-c);
+  border-radius:8px;margin-bottom:7px;background:#fff;}
+.vck .ic{width:19px;height:19px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:800;color:#fff;margin-top:1px;}
+.vck.ok .ic{background:#2e9e4f;} .vck.no .ic{background:#cac7bd;} .vck.wait .ic{background:#e08a1e;}
+.vck.wait{border-color:#f2d19b;background:#FEF9EF;}
+.vck .n{font-weight:600;font-size:13px;}
+.vck .s{font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px;}
+
+/* Ô số liệu nhỏ */
+.vmini{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-bottom:12px;}
+.vmini .m{border:1px solid var(--border-c);border-radius:8px;padding:9px 11px;background:#fff;}
+.vmini .m .l{font-size:11px;color:var(--muted);line-height:1.35;}
+.vmini .m .n{font-weight:800;font-size:17px;color:var(--brand);margin-top:2px;}
+
+/* Vấn đề cần chốt */
+.voi{border:1px solid var(--border-c);border-radius:8px;padding:11px 13px;margin-bottom:9px;}
+.voi .q{font-weight:700;font-size:13px;margin-bottom:5px;display:flex;gap:8px;align-items:flex-start;line-height:1.45;}
+.voi .a{font-size:12px;color:#555;line-height:1.65;}
+
+/* Xem trước văn bản */
+.vdoc{border:1px solid var(--border-c);border-radius:8px;padding:22px 26px;background:#fff;
+  font-family:"Times New Roman",serif;font-size:13.5px;line-height:1.7;}
+.vdoc .c{text-align:center;} .vdoc .b{font-weight:700;}
+.vwm{display:inline-block;transform:rotate(-4deg);border:2px dashed #c0392b;color:#c0392b;font-weight:800;
+  padding:3px 12px;font-size:11.5px;font-family:"Be Vietnam Pro",sans-serif;letter-spacing:.06em;}
+
+/* Nút nổi mở panel workshop */
+.vwsb{position:fixed;right:20px;bottom:20px;z-index:45;background:var(--brand);color:#fff;border:none;
+  border-radius:24px;padding:11px 18px;cursor:pointer;box-shadow:0 4px 16px rgba(140,0,17,.34);
+  font-weight:700;font-size:12.5px;font-family:inherit;display:none;}
+#screen-vds.active ~ .vwsb, body.vds-on .vwsb{display:block;}
+
+/* Bảng danh sách việc dân sự — kế thừa y hệt #screen-list của vụ án */
+#screen-vds .tbl-scroll table tbody tr{border-top:1px solid #d6d3ca;}
+#screen-vds .tbl-scroll table td{padding-top:16px;padding-bottom:16px;}
+#screen-vds .tbl-scroll table th,#screen-vds .tbl-scroll table td{border-right:1px solid #e2dfd7;}
+#screen-vds .tbl-scroll table th:last-child,#screen-vds .tbl-scroll table td:last-child{border-right:none;}
+#screen-vds .tbl-scroll table tbody tr:nth-child(even){background:#F7F6F3;}
+#screen-vds .tbl-scroll table tbody tr:nth-child(even) .col-act{background:#F7F6F3;}
+#screen-vds td[data-label="Hồ sơ / Ngày TL / Loại"]{text-align:center;vertical-align:top;}
+#screen-vds td[data-label="Hồ sơ / Ngày TL / Loại"] .caseno{display:inline-block;font-weight:700;color:var(--brand);margin-bottom:4px;cursor:pointer;}
+#screen-vds td[data-label="Hồ sơ / Ngày TL / Loại"] .badge{display:inline-block;margin:2px 0;}
+#screen-vds .cell-vv{vertical-align:top;text-align:center;}
+#screen-vds .cell-vv div{margin-bottom:3px;font-size:13px;}
+#screen-vds .cell-ng{vertical-align:top;}
+#screen-vds .cell-tt{vertical-align:top;text-align:center;}
+#screen-vds td.col-act{vertical-align:middle;}
+#screen-vds .v-rowlink{transition:background .12s;}
+#m-vtg .vtg-ds-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
+#m-vtg .tg-ds-item{cursor:default;}
+#m-vtg textarea,#m-vtg .fld textarea,#m-vtg select{width:100%;box-sizing:border-box;}
+#m-vtg .fld full > textarea,#m-vtg .fld.full > textarea{width:100%;}
+#m-vtg #vtg-wrap-uql textarea,#m-vtg #vtg-wrap-uql select,
+#m-vtg #vtg-wrap-sub2 textarea,#m-vtg #vtgo-wrap-uql textarea,
+#m-vtg #vtgo-wrap-uql select,#m-vtg #vtgo-wrap-sub2 textarea{width:100%;box-sizing:border-box;display:block;}
+#m-vtg .tg-ds-del{position:absolute;top:8px;right:8px;}
+#screen-vds .tbl-scroll table tbody tr.v-rowlink:hover{background:#FBF3F3;}
+#screen-vds .tbl-scroll table tbody tr.v-rowlink:hover td.col-act{background:#FBF3F3;}
+
+/* Multi-select trạng thái trong tìm kiếm nâng cao */
+#screen-vds .vms{position:relative;}
+#screen-vds .vms-btn{height:34px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;padding:0 10px;border:1px solid var(--border-c);border-radius:5px;background:#fff;cursor:pointer;width:100%;box-sizing:border-box;text-align:left;}
+#screen-vds .vms-btn:hover{border-color:var(--brand);}
+#screen-vds .vms-btn .cap{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333;}
+#screen-vds .vms-btn .cap.ph{color:#9a9a9a;}
+#screen-vds .vms-btn .car{flex-shrink:0;transition:transform .15s;color:#8a8a8a;}
+#screen-vds .vms.open .vms-btn .car{transform:rotate(180deg);}
+#screen-vds .vms-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--brand);color:#fff;font-size:11px;font-weight:600;margin-left:6px;flex-shrink:0;}
+#screen-vds .vms-panel{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:40;background:#fff;border:1px solid var(--border-c);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.14);max-height:280px;overflow:auto;padding:4px;}
+#screen-vds .vms.open .vms-panel{display:block;}
+#screen-vds .vms-opt{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;font-size:13px;border-radius:5px;cursor:pointer;line-height:1.35;}
+#screen-vds .vms-opt:hover{background:#FBF3F3;}
+#screen-vds .vms-opt input{margin-top:2px;flex-shrink:0;width:15px;height:15px;accent-color:var(--brand);}
+#screen-vds .vms-all{border-bottom:1px solid var(--border-c);margin-bottom:4px;font-weight:600;}
+#screen-vds .vms-empty{padding:10px;font-size:12.5px;color:#8a8a8a;}
+
+/* Tiêu đề phụ trong khối lệ phí / chi phí */
+#screen-vds .vsub-h{font-size:13.5px;font-weight:700;color:var(--brand);margin:6px 0 10px;display:flex;align-items:center;gap:2px;}
+
+/* Chống vỡ form: select trong flyout lệ phí giới hạn theo cột, không tràn */
+#m-vds-fly .vlp-sel,#m-vds-fly select{max-width:100%;width:100%;box-sizing:border-box;text-overflow:ellipsis;}
+#m-vds-fly .fld{min-width:0;}
+#m-vds-fly .fgrid{max-width:100%;}
+
+/* ===== Kháng cáo (đơn kháng cáo dân sự) ===== */
+.rdl{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
+.ckl{display:flex;align-items:center;gap:8px;font-size:13px;padding:7px 10px;border:1px solid var(--border-c);border-radius:7px;cursor:pointer;background:#fff;}
+.ckl:hover{background:#faf9f7;}
+.kc-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:640px){.kc-check-grid{grid-template-columns:1fr;}}
+.kc-th-ok{background:#E7F6EC;color:#1f8a4c;}
+.kc-th-over{background:#FDECEC;color:var(--brand);}
+.kc-th-unknown{background:#FEF3E2;color:#B45309;}
+.kc-tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:2px solid var(--border-c);margin-bottom:14px;}
+.kc-tab{padding:8px 13px;font-size:12.5px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:#555;white-space:nowrap;}
+.kc-tab:hover{color:var(--brand);}
+.kc-tab.on{color:var(--brand);font-weight:600;border-bottom-color:var(--brand);}
+.kc-pane{display:none;}
+.kc-pane.on{display:block;}
+.kc-toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:11px 20px;border-radius:9px;font-size:13px;box-shadow:0 6px 22px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:9999;max-width:90vw;}
+.kc-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.kc-actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:11px;background:#faf9f7;border:1px solid var(--border-c);border-radius:9px;}
+.kc-actbar .btn-ghost,.kc-actbar .btn-primary{font-size:12.5px;}
+.kc-st-strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+</style>
+
+</style>
+</head>
+<body>
+<div id="screen-list" class="screen active">
+<div class="wrap">
+  <div class="hd">
+    <div class="logo">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3v18"></path><path d="M5 8l7-3 7 3"></path><path d="M5 8l-2 6a4 4 0 0 0 8 0z" fill="none"></path><path d="M19 8l2 6a4 4 0 0 1-8 0z" fill="none"></path><path d="M8 21h8"></path></svg>
+    </div>
+    <div style="line-height:1.25">
+      <div class="brand-sub">CỤC CÔNG NGHỆ THÔNG TIN</div>
+      <div class="brand-main">HỆ THỐNG QUẢN LÝ ÁN</div>
+    </div>
+    <span class="hicon" title="Thu gọn menu" style="margin-left:4px">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"></path></svg>
+    </span>
+    <div class="spacer"></div>
+    <span class="kbd"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>⌘K</span>
+    <span class="hicon" title="Ứng dụng"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span>
+    <span class="hicon" title="Thông báo"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+    <span class="hicon" title="Chế độ tối"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></span>
+    <span class="hicon" title="Toàn màn hình"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg></span>
+  </div>
+
+  <div class="body">
+    <nav class="side">
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h14V10"></path></svg>Trang chủ</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Quản lý đơn</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M12 3v18"></path><path d="M7 8l10-3M7 8l-2 5h4zM17 5l2 5h-4z"></path></svg>Hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="sub active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M13 3l4 4L7 17H3v-4z"></path></svg>Quản lý sơ thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="leaf active" onclick="goList()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Hồ sơ vụ án hình sự sơ thẩm</div>
+      <div class="leaf" onclick="goCD()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M20 12H8M12 8l-4 4 4 4"></path><rect x="3" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đến</div>
+      <div class="leaf" onclick="goCDi()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 12h12M12 8l4 4-4 4"></path><rect x="17" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đi</div>
+      <div class="leaf" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>Hồ sơ vụ án lưu trữ</div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-3 7 3"></path></svg>Quản lý phúc thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>Giám đốc thẩm / Tái thẩm</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M6 12l6-6 6 6"></path><path d="M9 21v-6h6v6"></path></svg>Đề nghị áp dụng BPXLCH</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><circle cx="18" cy="8" r="2"></circle></svg>Dân sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Lao động</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><circle cx="17" cy="9" r="2"></circle><path d="M2 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path></svg>Hôn nhân và gia đình</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="1"></rect><path d="M9 7V4h6v3M9 12h6M9 16h6"></path></svg>Kinh doanh và thương mại</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6"></path></svg>Hành chính</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi" onclick="goRKN()" style="cursor:pointer"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"></path></svg>Quản lý phiên tòa</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Thông báo</span></div>
+    </nav>
+    <main class="main">
+      <div class="crumb">Trang chủ / Hình sự / Quản lý sơ thẩm vụ án hình sự / <b>Hồ sơ vụ án hình sự sơ thẩm</b></div>
+      <h1 class="title">Hồ sơ vụ án hình sự sơ thẩm</h1>
+
+      <div class="qs">
+        <div class="box">
+          <input placeholder="Nhập từ khóa tìm kiếm (số thụ lý, tên bị can, tội danh…)">
+          <button class="sbtn" aria-label="Tìm kiếm"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></button>
+        </div>
+        <span class="adv" id="adv-toggle" onclick="toggleAdv()"><svg class="icon" id="adv-caret" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg><span id="adv-label">Tìm kiếm nâng cao</span></span>
+        <div class="spacer" style="flex:1"></div>
+        <button class="rbtn" aria-label="Làm mới"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"></path><path d="M21 3v5h-5"></path></svg></button>
+      </div>
+
+      <div class="filters" id="adv-filters" style="display:none">
+        <label class="lbl">Mã vụ án<input placeholder="Mã vụ án"></label>
+        <label class="lbl">Số thụ lý<input placeholder="Số thụ lý"></label>
+        <label class="lbl">Tội danh<select><option>-- Tất cả --</option><option>Trộm cắp tài sản</option><option>Lừa đảo chiếm đoạt tài sản</option><option>Cố ý gây thương tích</option><option>Giết người</option><option>Tàng trữ/Mua bán trái phép chất ma túy</option><option>Đánh bạc / Tổ chức đánh bạc</option><option>Vi phạm quy định về tham gia giao thông đường bộ</option><option>Nhận hối lộ</option></select></label>
+        <label class="lbl">Điều luật viện dẫn (BLHS)<input placeholder="VD: Điều 173"></label>
+        <label class="lbl">Bị can / Bị cáo<input placeholder="Họ và tên"></label>
+        <label class="lbl">Ngày thụ lý<div class="range"><input placeholder="Từ ngày"><input placeholder="Đến ngày"></div></label>
+        <label class="lbl">Cơ quan điều tra<select><option>-- Tất cả --</option></select></label>
+        <label class="lbl">Viện kiểm sát truy tố<select><option>-- Tất cả --</option></select></label>
+        <label class="lbl">Thẩm phán<select><option>Thẩm phán</option></select></label>
+        <label class="lbl">Thư ký<select><option>Thư ký</option></select></label>
+        <label class="lbl">Giai đoạn xử lý<select><option>-- Tất cả --</option><option>Thụ lý</option><option>Phân công</option><option>Chuẩn bị xét xử</option><option>Xét xử</option><option>Kháng cáo/Kháng nghị</option></select></label>
+        <label class="lbl">Trạng thái hiệu lực<select><option>-- Tất cả --</option></select></label>
+        <label class="lbl">Biện pháp ngăn chặn<select><option>-- Tất cả --</option><option>Tạm giam</option><option>Cấm đi khỏi nơi cư trú</option><option>Bảo lĩnh</option><option>Đặt tiền bảo đảm</option></select></label>
+        <div></div>
+        <div class="fbar">
+          <button class="btn-primary"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>Tìm kiếm</button>
+          <button class="btn-ghost"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"></path><path d="M21 3v5h-5"></path></svg>Xóa bộ lọc</button>
+        </div>
+      </div>
+
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:34px"><input type="checkbox"></th>
+              <th>Hồ sơ / Ngày TL / Loại</th>
+              <th>Bị can/Bị cáo &amp; Tội danh</th>
+              <th>Người tiến hành tố tụng</th>
+              <th>Trạng thái tố tụng</th>
+              <th class="col-act">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="case-list-body">
+            <tr>
+              <td data-label="" class="row-bar rb-green"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0341')">12/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 04/07/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#E7F6EC;color:#1f8a4c">Đã giải quyết</span><div class="hs-sub">Đã thụ lý 52 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Nguyễn Văn Long <span class="muted">(sinh 1990)</span></div><div>Trần Đức Huy <span class="muted">(sinh 1992)</span></div></div><span class="qhpl-tag">Trộm cắp tài sản</span><div class="hs-meta">Điều 173 BLHS · Khoản 2</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Trần Hoàng Tân</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">Nguyễn Văn Bình; Lê Thị Cúc</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Phạm Quốc Dũng</div><div class="ng-role">Thư ký</div><div class="ng-name">Phạm Thị Hoa</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#E7F6EC;color:#1f8a4c">Đã giải quyết</span><div class="tt-row"><span class="tag">Bản án 45/2026/HS-ST</span></div><div class="tt-row"><span class="pill pill-b">KC</span></div><div class="tt-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Đã chuyển hồ sơ</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0341')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-orange"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0355')">15/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 03/07/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#FEF3E2;color:#d97706">Sắp quá hạn · còn 4 ngày</span><div class="hs-sub">Đã thụ lý 41 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Đỗ Văn Sơn <span class="muted">(sinh 1985)</span></div></div><span class="qhpl-tag">Lừa đảo chiếm đoạt tài sản</span><div class="hs-meta">Điều 174 BLHS · Khoản 3</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Tạ Nam Phương</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Lê Anh Tuấn</div><div class="ng-role">Thư ký</div><div class="ng-name">Vũ Đình Khánh</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#FEF3E2;color:#d97706">Chuẩn bị xét xử</span><div class="tt-row"><span class="badge" style="background:#FDE9EC;color:#8C0011">Có bị can bị tạm giam</span></div><div class="tt-box"><div class="tt-box-h">VB tố tụng gần nhất</div><div class="tt-box-t">Cáo trạng số 22/CT-VKS</div><div class="tt-box-d">28/06/2026</div></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0355')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-red"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0349')">09/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 01/06/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge badge-overdue">Quá hạn 6 ngày</span><div class="hs-sub">Đã thụ lý 65 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Ngô Văn Hùng <span class="muted">(sinh 1988)</span></div></div><span class="qhpl-tag">Cố ý gây thương tích</span><div class="hs-meta">Điều 134 BLHS · Khoản 2</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Lê Văn Tám</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">Trịnh Thị Nga; Bùi Văn Hòa</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Nguyễn Thị Hạnh</div><div class="ng-role">Thư ký</div><div class="ng-name">Lý Thu Trang</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#FEF3E2;color:#d97706">Đang xét xử</span><div class="tt-row"><span class="tag">Hoãn phiên tòa</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0349')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-green"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0362')">18/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 25/06/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#EAF3DE;color:#27500A">Trong hạn · còn 30 ngày</span><div class="hs-sub">Đã thụ lý 30 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Phan Văn Đức <span class="muted">(sinh 1995)</span></div><div>Cao Thị Hằng <span class="muted">(sinh 1997)</span></div><div>Bùi Văn Sơn <span class="muted">(sinh 1993)</span></div></div><span class="qhpl-tag">Đánh bạc</span><div class="hs-meta">Điều 321 BLHS · Khoản 1</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Hoàng Văn Nam</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Nguyễn Thị Hạnh</div><div class="ng-role">Thư ký</div><div class="ng-name">Lý Thu Trang</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#EDE7F6;color:#4A2E83">Tạm đình chỉ</span></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0362')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-grey"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0330')">05/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 20/06/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#EDE7F6;color:#4A2E83">Tạm đình chỉ</span><div class="hs-sub">Đã thụ lý 68 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Vũ Quang Huy <span class="muted">(sinh 1980)</span></div></div><span class="qhpl-tag">Vi phạm quy định về tham gia giao thông đường bộ</span><div class="hs-meta">Điều 260 BLHS · Khoản 3</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Lê Văn Tám</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Phạm Quốc Dũng</div><div class="ng-role">Thư ký</div><div class="ng-name">Trần Thị Lý</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#EDE7F6;color:#4A2E83">Tạm đình chỉ (bị can bỏ trốn)</span><div class="tt-box"><div class="tt-box-h">VB tố tụng gần nhất</div><div class="tt-box-t">QĐ tạm đình chỉ 03/2026/QĐST-HS</div><div class="tt-box-d">10/07/2026</div></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0330')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-grey"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0318')">02/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 15/05/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#F1EFE8;color:#666">Đình chỉ</span><div class="hs-sub">Đã thụ lý 95 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Bùi Thị Thu <span class="muted">(sinh 1991)</span></div></div><span class="qhpl-tag">Tàng trữ trái phép chất ma túy</span><div class="hs-meta">Điều 249 BLHS · Khoản 1</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Ngô Tiến Hùng</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Nguyễn Thị Hạnh</div><div class="ng-role">Thư ký</div><div class="ng-name">Vũ Hoàng Hiệp</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#F1EFE8;color:#666">Đình chỉ vụ án</span><div class="tt-box"><div class="tt-box-h">VB tố tụng gần nhất</div><div class="tt-box-t">QĐ đình chỉ 02/2026/QĐST-HS</div><div class="tt-box-d">02/07/2026</div></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0318')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-green"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0371')">20/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 03/07/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#FAEEDA;color:#633806">Chưa có hiệu lực</span><div class="hs-sub">Đã thụ lý 22 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Trần Quốc Bảo <span class="muted">(sinh 1994)</span></div></div><span class="qhpl-tag">Cướp giật tài sản</span><div class="hs-meta">Điều 171 BLHS · Khoản 1</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Ngô Tiến Hùng</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">Đỗ Văn Sơn; Vũ Thị Hằng</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Lê Anh Tuấn</div><div class="ng-role">Thư ký</div><div class="ng-name">Vũ Hoàng Hiệp</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#E7F6EC;color:#1f8a4c">Đã giải quyết</span><div class="tt-row"><span class="tag">Bản án 51/2026/HS-ST</span></div><div class="tt-row"><span class="badge" style="background:#FAEEDA;color:#633806">Còn hạn kháng cáo</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0371')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-green"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0374')">22/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 28/06/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#E6F1FB;color:#0C447C">Đã chuyển hồ sơ</span><div class="hs-sub">Đã thụ lý 27 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Đặng Văn Long <span class="muted">(sinh 1989)</span></div></div><span class="qhpl-tag">Mua bán trái phép chất ma túy</span><div class="hs-meta">Điều 251 BLHS · Khoản 2</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Chu Văn An</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Nguyễn Văn Bình</div><div class="ng-role">Thư ký</div><div class="ng-name">Hồ Sỹ Hưng</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#E7F6EC;color:#1f8a4c">Đã giải quyết</span><div class="tt-row"><span class="tag">Bản án 47/2026/HS-ST</span></div><div class="tt-row"><span class="pill pill-b">KC</span></div><div class="tt-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Đã chuyển phúc thẩm</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0374')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-red"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0308')">28/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 03/06/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge badge-overdue">Có kháng cáo quá hạn</span><div class="hs-sub">Đã thụ lý 82 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Vũ Thị Hằng <span class="muted">(sinh 1998)</span></div></div><span class="qhpl-tag">Tổ chức đánh bạc</span><div class="hs-meta">Điều 322 BLHS · Khoản 2</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Chu Văn An</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">—</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Phạm Quốc Dũng</div><div class="ng-role">Thư ký</div><div class="ng-name">Hồ Sỹ Hưng</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#E7F6EC;color:#1f8a4c">Đã giải quyết</span><div class="tt-row"><span class="tag">Bản án 40/2026/HS-ST</span></div><div class="tt-row"><span class="badge badge-overdue">Chờ xét kháng cáo quá hạn</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0308')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+            <tr>
+              <td data-label="" class="row-bar rb-green"><input type="checkbox"></td>
+              <td data-label="Hồ sơ / Ngày TL / Loại"><span class="caseno" onclick="event.stopPropagation();goDetail('VAHS26-0298')">30/2026/TLST-HS</span><div class="hs-meta">Ngày TL: 03/05/2026</div><span class="badge" style="background:#E8F0FE;color:#1a56c4">Hình sự</span><span class="badge" style="background:#EAF3DE;color:#27500A">Có hiệu lực pháp luật</span><div class="hs-sub">Đã thụ lý 112 ngày</div></td>
+              <td data-label="Bị can/Bị cáo &amp; Tội danh" class="cell-vv"><div><div>Lý Văn Thành <span class="muted">(sinh 1975)</span></div></div><span class="qhpl-tag">Nhận hối lộ</span><div class="hs-meta">Điều 354 BLHS · Khoản 2</div></td>
+              <td data-label="Người tiến hành tố tụng" class="cell-ng"><div class="ng-role">Thẩm phán chủ tọa</div><div class="ng-name">Lê Văn Tám</div><div class="ng-role">Hội thẩm nhân dân</div><div class="ng-name">Trần Thị Lý; Chu Thị Vân</div><div class="ng-role">Kiểm sát viên</div><div class="ng-name">Nguyễn Thị Hạnh</div><div class="ng-role">Thư ký</div><div class="ng-name">Trần Thị Lý</div></td>
+              <td data-label="Trạng thái tố tụng" class="cell-tt"><span class="badge" style="background:#EAF3DE;color:#27500A">Có hiệu lực pháp luật</span><div class="tt-row"><span class="tag">Bản án 30/2026/HS-ST</span></div><div class="tt-row"><span class="badge" style="background:#E6F1FB;color:#0C447C">Đã lưu hồ sơ</span></div></td>
+              <td data-label="Thao tác" class="col-act"><span class="acts"><span class="a a-eye" title="Xem chi tiết" onclick="event.stopPropagation();goDetail('VAHS26-0298')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pgbar">
+        <span class="muted">Hiển thị 1-10 trong tổng 127 vụ án</span>
+        <div class="pgctrl">
+          <span class="pg" aria-label="Trang trước"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg></span>
+          <span class="pg cur">1</span>
+          <span class="pg">2</span>
+          <span class="pg">3</span>
+          <span class="pg">4</span>
+          <span style="padding:0 2px">…</span>
+          <span class="pg">13</span>
+          <span class="pg" aria-label="Trang sau"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg></span>
+          <select><option>10 / trang</option><option>20 / trang</option><option>50 / trang</option></select>
+          <span>Đến</span>
+          <input class="jump">
+          <span>Trang</span>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+</div>
+
+<!-- ============ SCREEN 2: CHI TIẾT VỤ ÁN HÌNH SỰ ============ -->
+<div id="screen-detail" class="screen">
+<div class="wrap">
+  <div class="hd">
+    <div class="logo">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3v18"></path><path d="M5 8l7-3 7 3"></path><path d="M5 8l-2 6a4 4 0 0 0 8 0z" fill="none"></path><path d="M19 8l2 6a4 4 0 0 1-8 0z" fill="none"></path><path d="M8 21h8"></path></svg>
+    </div>
+    <div style="line-height:1.25">
+      <div class="brand-sub">CỤC CÔNG NGHỆ THÔNG TIN</div>
+      <div class="brand-main">HỆ THỐNG QUẢN LÝ ÁN</div>
+    </div>
+    <span class="hicon" title="Thu gọn menu" style="margin-left:4px">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"></path></svg>
+    </span>
+    <div class="spacer"></div>
+    <span class="kbd"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>⌘K</span>
+    <span class="hicon" title="Ứng dụng"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span>
+    <span class="hicon" title="Thông báo"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+    <span class="hicon" title="Chế độ tối"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></span>
+    <span class="hicon" title="Toàn màn hình"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg></span>
+  </div>
+
+  <div class="body">
+    <nav class="side">
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h14V10"></path></svg>Trang chủ</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Quản lý đơn</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M12 3v18"></path><path d="M7 8l10-3M7 8l-2 5h4zM17 5l2 5h-4z"></path></svg>Hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="sub active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M13 3l4 4L7 17H3v-4z"></path></svg>Quản lý sơ thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="leaf active" onclick="goList()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Hồ sơ vụ án hình sự sơ thẩm</div>
+      <div class="leaf" onclick="goCD()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M20 12H8M12 8l-4 4 4 4"></path><rect x="3" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đến</div>
+      <div class="leaf" onclick="goCDi()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 12h12M12 8l4 4-4 4"></path><rect x="17" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đi</div>
+      <div class="leaf" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>Hồ sơ vụ án lưu trữ</div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-3 7 3"></path></svg>Quản lý phúc thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>Giám đốc thẩm / Tái thẩm</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M6 12l6-6 6 6"></path><path d="M9 21v-6h6v6"></path></svg>Đề nghị áp dụng BPXLCH</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><circle cx="18" cy="8" r="2"></circle></svg>Dân sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Lao động</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><circle cx="17" cy="9" r="2"></circle><path d="M2 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path></svg>Hôn nhân và gia đình</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="1"></rect><path d="M9 7V4h6v3M9 12h6M9 16h6"></path></svg>Kinh doanh và thương mại</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6"></path></svg>Hành chính</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi" onclick="goRKN()" style="cursor:pointer"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"></path></svg>Quản lý phiên tòa</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Thông báo</span></div>
+    </nav>
+    <main class="main">
+      <div class="case-ghim">
+        <div class="ghim-strip">
+          <span class="ghim-back" onclick="goList()" title="Quay lại danh sách"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></span>
+          <div class="ghim-body">
+            <div class="ghim-crumb"><a onclick="goList()">Trang chủ</a><span class="sep">›</span><a onclick="goList()">Hình sự</a><span class="sep">›</span><a onclick="goList()">Quản lý sơ thẩm vụ án hình sự</a><span class="sep">›</span><a onclick="goList()">Hồ sơ vụ án hình sự sơ thẩm</a><span class="sep">›</span><b>Chi tiết vụ án</b></div>
+            <div class="ghim-eyebrow"><span class="ghim-tag" id="dt-ghim-so">12/2026/TLST-HS</span><span class="ghim-dot">•</span><span id="dt-ghim-qhpl">Trộm cắp tài sản (Điều 173 BLHS)</span></div>
+            <h1 id="dt-title">Nguyễn Văn Long và đồng phạm</h1>
+          </div>
+          <div class="ghim-right">
+            <div class="ghim-status">
+              <span class="status-badge st-pending" id="dt-statusbadge">ĐANG XÉT XỬ</span>
+            </div>
+            <div class="ghim-actions">
+              <button class="btn-ghost" style="height:32px"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5h20v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>In hồ sơ</button>
+              <button class="btn-primary" style="height:32px"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M11 4H4v16h16v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>Chỉnh sửa vụ án</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-progress">
+        <div class="cp-head">
+          <span class="cp-title">Tiến độ giải quyết vụ án</span>
+          <span class="cp-now">Giai đoạn hiện tại: <b>Xét xử</b></span>
+        </div>
+        <div class="cp-track">
+          <div class="cp-step done"><span class="cp-node"></span><span class="cp-label">Thụ lý</span></div>
+          <div class="cp-step done"><span class="cp-node"></span><span class="cp-label">Phân công</span></div>
+          <div class="cp-step done"><span class="cp-node"></span><span class="cp-label">Chuẩn bị xét xử</span></div>
+          <div class="cp-step current"><span class="cp-node"></span><span class="cp-label">Xét xử</span></div>
+          <div class="cp-step"><span class="cp-node"></span><span class="cp-label">Tuyên án</span></div>
+          <div class="cp-step"><span class="cp-node"></span><span class="cp-label">Kháng cáo / Kháng nghị</span></div>
+          <div class="cp-step"><span class="cp-node"></span><span class="cp-label">Chuyển phúc thẩm</span></div>
+          <div class="cp-step"><span class="cp-node"></span><span class="cp-label">Hiệu lực / Thi hành án</span></div>
+        </div>
+      </div>
+
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="tab-tt">Thông tin chung</div>
+        <div class="tab" data-tab="tab-tl">Thụ lý</div>
+        <div class="tab" data-tab="tab-pc">Phân công</div>
+        <div class="tab" data-tab="tab-cb">Chuẩn bị xét xử</div>
+        <div class="tab" data-tab="tab-xx">Xét xử</div>
+        <div class="tab" data-tab="tab-kn">Kháng cáo / Kháng nghị</div>
+        <div class="tab" data-tab="tab-hs">Tài liệu, chứng cứ</div>
+        <div class="tab" data-tab="tab-th">Thi hành án</div>
+        <div class="tab tab-icon" data-tab="tab-ls" title="Lịch sử thay đổi" aria-label="Lịch sử thay đổi"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg></div>
+      </div>
+      <!-- TAB THÔNG TIN CHUNG -->
+      <div id="tab-tt" class="tabpane">
+        <div class="sec-h" data-target="s-tt"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Thông tin chung của vụ án</div>
+        <div id="s-tt" class="info-cols">
+          <div class="info-tbl">
+            <div class="info-row"><div class="k">Mã vụ</div><div class="v" id="dt-mavu">VAHS26-0355</div></div>
+            <div class="info-row"><div class="k">Số thụ lý</div><div class="v" id="dt-sotl">12/2026/TLST-HS — Ngày TL: 04/07/2026</div></div>
+            <div class="info-row"><div class="k">Tội danh bị truy tố</div><div class="v" id="dt-qhpl">Trộm cắp tài sản — Điều 173 BLHS, Khoản 2</div></div>
+            <div class="info-row"><div class="k">Ngày, giờ xảy ra vụ án</div><div class="v">02/05/2026, khoảng 23h30</div></div>
+            <div class="info-row"><div class="k">Địa điểm xảy ra</div><div class="v">Số 45, đường Giải Phóng, P. Hoàng Mai, TP Hà Nội</div></div>
+          </div>
+          <div class="info-tbl">
+            <div class="info-row"><div class="k">Tòa án giải quyết</div><div class="v">TAND khu vực 1 - TP Hà Nội</div></div>
+            <div class="info-row"><div class="k">Cơ quan điều tra</div><div class="v">Cơ quan CSĐT Công an TP Hà Nội</div></div>
+            <div class="info-row"><div class="k">Viện kiểm sát truy tố</div><div class="v">VKSND TP Hà Nội</div></div>
+            <div class="info-row"><div class="k">Số/ngày cáo trạng</div><div class="v">18/CT-VKS — 25/06/2026</div></div>
+            <div class="info-row"><div class="k">Trạng thái</div><div class="v" id="dt-status"><div class="status-cell"><span>Đang xét xử</span><span class="status-extra"><span class="badge" style="background:#FEF3E2;color:#d97706">Trong hạn xét xử</span></span></div></div></div>
+          </div>
+        </div>
+
+        <div class="sec-h" data-target="s-tomtat"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Tóm tắt nội dung vụ án</div>
+        <div id="s-tomtat" class="card collapsed" style="padding:14px 16px;line-height:1.6">
+          Khoảng 23h30 ngày 02/05/2026, Nguyễn Văn Long cùng Trần Đức Huy đột nhập vào cửa hàng điện máy tại địa chỉ nêu trên, lấy đi 03 tivi và 05 điện thoại di động, tổng trị giá tài sản bị chiếm đoạt theo kết luận định giá là 87.400.000 đồng. Vụ án được khởi tố theo Điều 173 BLHS; Cơ quan CSĐT đã hoàn tất điều tra và chuyển hồ sơ đề nghị truy tố; VKSND TP Hà Nội đã ban hành cáo trạng truy tố hai bị can nêu trên ra trước TAND khu vực 1 để xét xử theo thủ tục sơ thẩm.
+        </div>
+
+        <div class="sec-h" data-target="s-bican"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Danh sách bị can / bị cáo</div>
+        <div id="s-bican" class="card">
+          <div class="card-top"><button class="btn-add" onclick="openModal('m-bican')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Thêm bị can/bị cáo</button></div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Họ và tên</th><th>Ngày sinh</th><th>Tội danh — Điều luật</th><th>Biện pháp ngăn chặn</th><th>Trạng thái</th><th style="text-align:center">Tác vụ</th></tr></thead>
+            <tbody>
+              <tr><td class="stt-cell">1</td><td class="tg-name">Nguyễn Văn Long</td><td>14/03/1990</td><td>Trộm cắp tài sản — Điều 173, Khoản 2</td><td><span class="role-badge rb-bi">Tạm giam</span></td><td><span class="badge" style="background:#FEF3E2;color:#d97706">Đang xét xử</span></td><td style="text-align:center"><span class="eye tip" data-tip="Xem hồ sơ" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td class="stt-cell">2</td><td class="tg-name">Trần Đức Huy</td><td>02/11/1992</td><td>Trộm cắp tài sản — Điều 173, Khoản 2</td><td><span class="role-badge">Cấm đi khỏi nơi cư trú</span></td><td><span class="badge" style="background:#FEF3E2;color:#d97706">Đang xét xử</span></td><td style="text-align:center"><span class="eye tip" data-tip="Xem hồ sơ" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h" data-target="s-bihai"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Bị hại / Nguyên đơn dân sự / Người có quyền lợi, nghĩa vụ liên quan</div>
+        <div id="s-bihai" class="card collapsed">
+          <div class="tbl-scroll"><table class="tgtt-tbl">
+            <thead><tr><th>STT</th><th>Họ và tên</th><th>Tư cách</th><th>Địa chỉ liên hệ</th><th>SĐT liên hệ</th><th style="text-align:center">Tác vụ</th></tr></thead>
+            <tbody>
+              <tr><td class="stt-cell">1</td><td class="tg-name">Cửa hàng điện máy Thành Đạt (đại diện: Ông Vũ Minh Thành)</td><td><span class="role-badge rb-ng">Bị hại</span></td><td>45 Giải Phóng, P. Hoàng Mai, Hà Nội</td><td class="tg-phone">0912 345 678</td><td style="text-align:center"><span class="eye tip" data-tip="Cập nhật" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h" data-target="s-lscb"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Người bào chữa / Luật sư</div>
+        <div id="s-lscb" class="card collapsed">
+          <div class="card-top"><button class="btn-add" onclick="openModal('m-bican')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Thêm người bào chữa</button></div>
+          <div class="tbl-scroll"><table class="tgtt-tbl">
+            <thead><tr><th>STT</th><th>Họ và tên</th><th>Bào chữa cho</th><th>Đoàn luật sư / Tổ chức</th><th>SĐT liên hệ</th><th style="text-align:center">Tác vụ</th></tr></thead>
+            <tbody>
+              <tr><td class="stt-cell">1</td><td class="tg-name">LS. Nguyễn Thị Bích Ngọc</td><td>Nguyễn Văn Long</td><td>Đoàn Luật sư TP Hà Nội</td><td class="tg-phone">0977 888 999</td><td style="text-align:center"><span class="eye tip" data-tip="Cập nhật" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td class="stt-cell">2</td><td class="tg-name">LS. Đặng Quốc Việt <span class="role-note">Chỉ định</span></td><td>Trần Đức Huy</td><td>Trung tâm TGPL Nhà nước TP Hà Nội</td><td class="tg-phone">0988 111 222</td><td style="text-align:center"><span class="eye tip" data-tip="Cập nhật" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <!-- TAB THỤ LÝ -->
+      <div id="tab-tl" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Thông tin thụ lý</div>
+        <div class="sec-actions"><button class="btn-add" style="height:30px" onclick="openModal('m-bican')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M11 4H4v16h16v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>Sửa thụ lý</button></div>
+        <div class="info-cols">
+          <div class="info-tbl">
+            <div class="info-row"><div class="k">Ngày nhận hồ sơ + cáo trạng từ VKS</div><div class="v">02/07/2026</div></div>
+            <div class="info-row"><div class="k">Ngày thụ lý</div><div class="v">04/07/2026</div></div>
+            <div class="info-row"><div class="k">Số bút lục hồ sơ</div><div class="v">01 - 486</div></div>
+          </div>
+          <div class="info-tbl">
+            <div class="info-row"><div class="k">Thời hạn chuẩn bị xét xử</div><div class="v">45 ngày (Điều 277 BLTTHS) — hạn cuối 18/08/2026</div></div>
+            <div class="info-row"><div class="k">Áp dụng thủ tục rút gọn</div><div class="v">Không</div></div>
+            <div class="info-row"><div class="k">Có bị can bị tạm giam</div><div class="v">Có — 01/02 bị can</div></div>
+          </div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Lịch sử thụ lý, giải quyết</div>
+        <div class="card">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Giai đoạn</th><th>Bị can/Bị cáo</th><th>Tòa án &amp; Thẩm phán</th><th>Thông tin giải quyết</th><th>Kết quả</th></tr></thead>
+            <tbody><tr><td>1</td><td>Sơ thẩm</td><td>Nguyễn Văn Long; Trần Đức Huy</td><td>TAND khu vực 1 - TP Hà Nội — Tạ Nam Phương</td><td>12/2026/TLST-HS — 04/07/2026<br><span class="muted">Thụ lý theo cáo trạng VKS</span></td><td>Đang giải quyết</td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Gia hạn thời hạn chuẩn bị xét xử</div>
+        <div class="card">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Số/ngày quyết định</th><th>Lý do gia hạn</th><th>Thời gian gia hạn</th><th>Người ký</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa gia hạn thời hạn chuẩn bị xét xử</div></td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="lydo-note"><svg class="icon" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span>Thời hạn chuẩn bị xét xử được tính theo khoản 1 Điều 277 BLTTHS tương ứng loại tội; hệ thống tự động cảnh báo khi còn 7 ngày là hết hạn.</span></div>
+      </div>
+      <!-- TAB PHÂN CÔNG -->
+      <div id="tab-pc" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Hội đồng xét xử &amp; người tiến hành tố tụng</div>
+        <div class="sec-actions"><button class="btn-add" style="height:30px" onclick="openModal('m-bican')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M11 4H4v16h16v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg>Sửa phân công</button></div>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th>STT</th><th>Vai trò</th><th>Họ và tên</th><th>Chức danh</th><th>Ngày phân công</th><th style="text-align:center">Thao tác</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><span class="role-badge rb-ng">Thẩm phán chủ tọa</span></td><td class="tg-name">Tạ Nam Phương</td><td>Thẩm phán trung cấp</td><td>04/07/2026</td><td style="text-align:center"><span class="eye" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            <tr><td>2</td><td><span class="role-badge">Hội thẩm nhân dân</span></td><td class="tg-name">Đỗ Văn Sơn</td><td>Hội thẩm nhân dân</td><td>04/07/2026</td><td style="text-align:center"><span class="eye" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            <tr><td>3</td><td><span class="role-badge">Hội thẩm nhân dân</span></td><td class="tg-name">Vũ Thị Hằng</td><td>Hội thẩm nhân dân</td><td>04/07/2026</td><td style="text-align:center"><span class="eye" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            <tr><td>4</td><td><span class="role-badge rb-bi">Kiểm sát viên</span></td><td class="tg-name">Lê Anh Tuấn</td><td>Kiểm sát viên trung cấp — VKSND TP Hà Nội</td><td>03/07/2026</td><td style="text-align:center"><span class="eye" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            <tr><td>5</td><td><span class="role-badge">Thư ký</span></td><td class="tg-name">Vũ Đình Khánh</td><td>Thư ký Tòa án</td><td>04/07/2026</td><td style="text-align:center"><span class="eye" onclick="openModal('m-bican')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+          </tbody>
+        </table></div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Đề nghị / Quyết định thay đổi người tiến hành tố tụng</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Người bị đề nghị thay đổi</th><th>Người đề nghị</th><th>Lý do</th><th>Ngày</th><th>Kết quả</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa có đề nghị thay đổi người tiến hành tố tụng</div></td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+      <!-- TAB CHUẨN BỊ XÉT XỬ -->
+      <div id="tab-cb" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Quyết định đưa vụ án ra xét xử</div>
+        <div class="card">
+          <div class="card-top"><button class="btn-add" onclick="openModal('m-qdxx')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Ra quyết định đưa vụ án ra xét xử</button></div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Số/ngày quyết định</th><th>Ngày mở phiên tòa</th><th>Hình thức xét xử</th><th>Người ký</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>14/2026/QĐXXST-HS</td><td>25/07/2026, 08h00</td><td>Công khai</td><td>Tạ Nam Phương</td><td style="text-align:center"><span class="eye" onclick="openModal('m-qdxx')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Các quyết định khác trong giai đoạn chuẩn bị xét xử</div>
+        <div class="card collapsed">
+          <div class="card-top">
+            <div class="dd-wrap" id="dd-cbwrap">
+              <button class="btn-add" onclick="toggleDonMenu(event)"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Ra quyết định<svg class="icon" style="width:13px;height:13px;margin-left:2px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></button>
+              <div class="dd-menu" id="dd-donmenu">
+                <div class="dd-item" onclick="closeDonMenu()">Trả hồ sơ điều tra bổ sung</div>
+                <div class="dd-item" onclick="closeDonMenu()">Tạm đình chỉ vụ án</div>
+                <div class="dd-item" onclick="closeDonMenu()">Đình chỉ vụ án</div>
+                <div class="dd-item" onclick="closeDonMenu()">Áp dụng/thay đổi/hủy bỏ biện pháp ngăn chặn</div>
+                <div class="dd-item" onclick="closeDonMenu()">Chuyển vụ án cho Tòa án có thẩm quyền</div>
+              </div>
+            </div>
+          </div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Loại quyết định</th><th>Số/ngày</th><th>Lý do</th><th>Người ký</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa có quyết định khác</div></td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Áp dụng, thay đổi, hủy bỏ biện pháp ngăn chặn</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Bị can/Bị cáo</th><th>Biện pháp</th><th>Số/ngày quyết định</th><th>Thời hạn</th><th>Người ký</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Nguyễn Văn Long</td><td><span class="role-badge rb-bi">Tạm giam</span></td><td>05/2026/LTG-HS — 03/07/2026</td><td>Đến 18/08/2026</td><td>Tạ Nam Phương</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="lydo-note"><svg class="icon" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span>Quyết định đưa vụ án ra xét xử phải được giao/gửi cho bị cáo, người bào chữa, người bị hại chậm nhất 10 ngày trước ngày mở phiên tòa (Điều 286 BLTTHS).</span></div>
+      </div>
+      <!-- TAB XÉT XỬ -->
+      <div id="tab-xx" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Lịch phiên tòa</div>
+        <div class="card">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Ngày xét xử</th><th>Giờ</th><th>Cấp xét xử</th><th>Địa điểm</th><th>Kết quả phiên tòa</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>25/07/2026</td><td>08h00</td><td>Sơ thẩm</td><td>Phòng xử án số 2 — TAND khu vực 1</td><td><span class="tag">Hoãn phiên tòa</span></td></tr>
+              <tr><td>2</td><td>08/08/2026</td><td>08h00</td><td>Sơ thẩm</td><td>Phòng xử án số 2 — TAND khu vực 1</td><td><span class="badge" style="background:#FEF3E2;color:#d97706">Dự kiến</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Bản án / Quyết định sơ thẩm</div>
+        <div class="card collapsed">
+          <div class="card-top"><button class="btn-add" id="xx-ba-add" onclick="openModal('m-banan')"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Tạo bản án</button></div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Số/ngày bản án</th><th>Bị cáo</th><th>Tội danh — Hình phạt</th><th>Trạng thái</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa ban hành bản án — phiên tòa đang trong quá trình xét xử</div></td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Đăng ký phiên tòa rút kinh nghiệm</div>
+        <div class="card collapsed" style="padding:14px 16px">
+          <label class="rkn-check"><input type="checkbox" id="rkn-toggle-hs"> <span style="color:var(--brand);font-weight:700;display:inline-flex;align-items:center;gap:8px"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-3 7 3"></path><path d="M5 8l-2 6a4 4 0 0 0 8 0z"></path><path d="M19 8l2 6a4 4 0 0 1-8 0z"></path></svg>Đăng ký tổ chức phiên tòa rút kinh nghiệm</span></label>
+        </div>
+      </div>
+      <!-- TAB KHÁNG CÁO / KHÁNG NGHỊ -->
+      <div id="tab-kn" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Kháng cáo</div>
+        <div class="card">
+          <div class="card-top"><button class="btn-add" id="kc-btn-tiepnhan-hs" onclick="openModal('m-kc')"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Tiếp nhận đơn kháng cáo</button></div>
+          <div id="kc-guard-note-hs" class="lydo-note" style="margin:0 0 12px"><svg class="icon" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span>Chỉ tiếp nhận đơn kháng cáo sau khi hồ sơ đã có bản án hoặc quyết định sơ thẩm thuộc đối tượng được kháng cáo (Điều 331 BLTTHS).</span></div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Người kháng cáo</th><th>Nội dung kháng cáo</th><th>Ngày nộp</th><th>Thời hạn</th><th>Trạng thái</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody><tr><td colspan="7"><div class="empty">Chưa có đơn kháng cáo — vụ án chưa có bản án sơ thẩm</div></td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Kháng nghị của Viện kiểm sát</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Số/ngày kháng nghị</th><th>VKS kháng nghị</th><th>Nội dung</th><th>Ngày nhận</th><th>Trạng thái</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa có kháng nghị</div></td></tr></tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Chuyển hồ sơ phúc thẩm</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Ngày chuyển</th><th>Tòa án nhận</th><th>Số công văn</th><th>Người chuyển</th><th>Trạng thái</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa chuyển hồ sơ phúc thẩm</div></td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+      <!-- TAB TÀI LIỆU, CHỨNG CỨ -->
+      <div id="tab-hs" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Hồ sơ vụ án do Cơ quan điều tra / Viện kiểm sát chuyển</div>
+        <div class="card">
+          <div class="card-top"><button class="btn-add" onclick="openModal('m-taivieu')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Tài liệu đính kèm</button></div>
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Tên tài liệu</th><th>Nguồn cung cấp</th><th>Ngày cung cấp</th><th>Số bút lục</th><th style="text-align:center">Thao tác</th></tr></thead>
+            <tbody id="ttc-hs-body">
+              <tr><td>1</td><td>Cáo trạng số 18/CT-VKS</td><td>VKSND TP Hà Nội</td><td>25/06/2026</td><td>01-05</td><td style="text-align:center"><span class="eye" onclick="openModal('m-taivieu')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td>2</td><td>Kết luận điều tra số 42/KLĐT</td><td>Cơ quan CSĐT Công an TP Hà Nội</td><td>18/06/2026</td><td>06-120</td><td style="text-align:center"><span class="eye" onclick="openModal('m-taivieu')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td>3</td><td>Biên bản khám nghiệm hiện trường</td><td>Cơ quan CSĐT Công an TP Hà Nội</td><td>03/05/2026</td><td>121-128</td><td style="text-align:center"><span class="eye" onclick="openModal('m-taivieu')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td>4</td><td>Kết luận định giá tài sản số 09/KLĐG</td><td>Hội đồng định giá tài sản</td><td>20/05/2026</td><td>129-135</td><td style="text-align:center"><span class="eye" onclick="openModal('m-taivieu')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+              <tr><td>5</td><td>Lời khai bị can Nguyễn Văn Long (các bút lục)</td><td>Cơ quan CSĐT Công an TP Hà Nội</td><td>05/05/2026 - 15/06/2026</td><td>136-210</td><td style="text-align:center"><span class="eye" onclick="openModal('m-taivieu')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Vật chứng</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Tên vật chứng</th><th>Số lượng</th><th>Nơi bảo quản</th><th>Trạng thái xử lý</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Tivi Samsung 55 inch</td><td>03</td><td>Kho vật chứng Công an TP Hà Nội</td><td><span class="badge" style="background:#FEF3E2;color:#d97706">Đang tạm giữ</span></td></tr>
+              <tr><td>2</td><td>Điện thoại di động các loại</td><td>05</td><td>Kho vật chứng Công an TP Hà Nội</td><td><span class="badge" style="background:#FEF3E2;color:#d97706">Đang tạm giữ</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="hs-viewer-wrap" style="display:flex;gap:14px;margin-top:14px">
+          <div class="card" style="width:260px;flex-shrink:0;padding:10px">
+            <div class="hs-search"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input placeholder="Tìm tài liệu trong hồ sơ…"></div>
+            <div class="muted" style="font-size:12px;margin-top:10px;line-height:1.6">Cây tài liệu hồ sơ vụ án (theo bút lục) hiển thị tại đây khi kết nối kho tài liệu số.</div>
+          </div>
+          <div class="card" id="hs-viewer-hs" style="flex:1;height:420px;padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted)">Chọn một tài liệu ở bảng trên để xem trước</div>
+        </div>
+      </div>
+      <!-- TAB THI HÀNH ÁN -->
+      <div id="tab-th" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Theo dõi hiệu lực bản án / quyết định</div>
+        <div class="card" style="padding:14px 16px">
+          <div class="lydo-note"><svg class="icon" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span>Vụ án chưa có bản án sơ thẩm nên chưa phát sinh dữ liệu thi hành án. Mục này sẽ hiển thị thông báo, quyết định thi hành án phạt tù/tiền và ủy thác thi hành án khi bản án có hiệu lực pháp luật.</span></div>
+        </div>
+
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Quyết định thi hành án</div>
+        <div class="card collapsed">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Số/ngày quyết định</th><th>Bị án</th><th>Hình phạt thi hành</th><th>Cơ quan thi hành án</th><th>Trạng thái</th></tr></thead>
+            <tbody><tr><td colspan="6"><div class="empty">Chưa có quyết định thi hành án</div></td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- TAB LỊCH SỬ -->
+      <div id="tab-ls" class="tabpane" style="display:none">
+        <div class="sec-h"><span class="toggle"><svg class="icon" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M5 12h14"></path></svg></span>Lịch sử xử lý vụ án</div>
+        <div class="card">
+          <div class="tbl-scroll"><table>
+            <thead><tr><th>STT</th><th>Thời gian</th><th>Hành động</th><th>Người thực hiện</th><th>Ghi chú</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>04/07/2026 09:12</td><td>Thụ lý vụ án theo cáo trạng</td><td>Phòng Văn thư</td><td>Số thụ lý 12/2026/TLST-HS</td></tr>
+              <tr><td>2</td><td>04/07/2026 10:30</td><td>Phân công Thẩm phán chủ tọa</td><td>Chánh án</td><td>Phân công: Tạ Nam Phương</td></tr>
+              <tr><td>3</td><td>10/07/2026 14:05</td><td>Phân công Hội thẩm nhân dân, Thư ký</td><td>Tạ Nam Phương</td><td>—</td></tr>
+              <tr><td>4</td><td>15/07/2026 08:40</td><td>Ban hành Quyết định đưa vụ án ra xét xử</td><td>Tạ Nam Phương</td><td>14/2026/QĐXXST-HS</td></tr>
+              <tr><td>5</td><td>25/07/2026 08:00</td><td>Mở phiên tòa — Hoãn phiên tòa</td><td>HĐXX</td><td>Lý do: vắng mặt người bào chữa</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- ============ SCREEN 3: HỒ SƠ VỤ ÁN HÌNH SỰ CHUYỂN ĐẾN ============ -->
+<div id="screen-cd" class="screen">
+<div class="wrap">
+  <div class="hd">
+    <div class="logo">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3v18"></path><path d="M5 8l7-3 7 3"></path><path d="M5 8l-2 6a4 4 0 0 0 8 0z" fill="none"></path><path d="M19 8l2 6a4 4 0 0 1-8 0z" fill="none"></path><path d="M8 21h8"></path></svg>
+    </div>
+    <div style="line-height:1.25">
+      <div class="brand-sub">CỤC CÔNG NGHỆ THÔNG TIN</div>
+      <div class="brand-main">HỆ THỐNG QUẢN LÝ ÁN</div>
+    </div>
+    <span class="hicon" title="Thu gọn menu" style="margin-left:4px">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"></path></svg>
+    </span>
+    <div class="spacer"></div>
+    <span class="kbd"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>⌘K</span>
+    <span class="hicon" title="Ứng dụng"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span>
+    <span class="hicon" title="Thông báo"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+    <span class="hicon" title="Chế độ tối"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></span>
+    <span class="hicon" title="Toàn màn hình"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg></span>
+  </div>
+
+  <div class="body">
+    <nav class="side">
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h14V10"></path></svg>Trang chủ</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Quản lý đơn</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M12 3v18"></path><path d="M7 8l10-3M7 8l-2 5h4zM17 5l2 5h-4z"></path></svg>Hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="sub active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M13 3l4 4L7 17H3v-4z"></path></svg>Quản lý sơ thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="leaf" onclick="goList()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Hồ sơ vụ án hình sự sơ thẩm</div>
+      <div class="leaf active" onclick="goCD()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M20 12H8M12 8l-4 4 4 4"></path><rect x="3" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đến</div>
+      <div class="leaf" onclick="goCDi()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 12h12M12 8l4 4-4 4"></path><rect x="17" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đi</div>
+      <div class="leaf" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>Hồ sơ vụ án lưu trữ</div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-3 7 3"></path></svg>Quản lý phúc thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>Giám đốc thẩm / Tái thẩm</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M6 12l6-6 6 6"></path><path d="M9 21v-6h6v6"></path></svg>Đề nghị áp dụng BPXLCH</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><circle cx="18" cy="8" r="2"></circle></svg>Dân sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Lao động</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><circle cx="17" cy="9" r="2"></circle><path d="M2 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path></svg>Hôn nhân và gia đình</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="1"></rect><path d="M9 7V4h6v3M9 12h6M9 16h6"></path></svg>Kinh doanh và thương mại</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6"></path></svg>Hành chính</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi" onclick="goRKN()" style="cursor:pointer"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"></path></svg>Quản lý phiên tòa</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Thông báo</span></div>
+    </nav>
+
+    <main class="main">
+      <div class="crumb">Trang chủ / Hình sự / Quản lý sơ thẩm vụ án hình sự / <b>Hồ sơ vụ án chuyển đến</b></div>
+      <h1 class="title">Hồ sơ vụ án hình sự chuyển đến</h1>
+      <div class="qs">
+        <div class="box"><input placeholder="Nhập từ khóa tìm kiếm"><button class="sbtn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></button></div>
+        <div class="spacer" style="flex:1"></div>
+        <button class="rbtn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"></path><path d="M21 3v5h-5"></path></svg></button>
+      </div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th style="width:34px"><input type="checkbox"></th><th>Số thụ lý / Ngày chuyển</th><th>Bị can/Bị cáo &amp; Tội danh</th><th>Tòa án chuyển đến</th><th>Lý do chuyển</th><th class="col-act">Thao tác</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="row-bar rb-orange"><input type="checkbox"></td>
+            <td><span class="caseno">31/2026/TLST-HS</span><div class="hs-meta">Ngày chuyển: 10/07/2026</div></td>
+            <td class="cell-vv"><div>Hoàng Minh Tuấn</div><span class="qhpl-tag">Cố ý gây thương tích — Điều 134 BLHS</span></td>
+            <td>TAND khu vực 1 - TP Hà Nội</td>
+            <td>Bị can chuyển nơi cư trú, thay đổi thẩm quyền xét xử</td>
+            <td class="col-act"><span class="acts"><span class="a a-eye" title="Xem" onclick="event.stopPropagation();alert('Xem chi tiết hồ sơ chuyển đến (minh họa)')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span><span class="a" title="Chấp nhận" onclick="cdAcceptDemo(this)"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"></path><circle cx="12" cy="12" r="9"></circle></svg></span></span></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- ============ SCREEN 4: HỒ SƠ VỤ ÁN HÌNH SỰ CHUYỂN ĐI ============ -->
+<div id="screen-cdi" class="screen">
+<div class="wrap">
+  <div class="hd">
+    <div class="logo">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M12 3v18"></path><path d="M5 8l7-3 7 3"></path><path d="M5 8l-2 6a4 4 0 0 0 8 0z" fill="none"></path><path d="M19 8l2 6a4 4 0 0 1-8 0z" fill="none"></path><path d="M8 21h8"></path></svg>
+    </div>
+    <div style="line-height:1.25">
+      <div class="brand-sub">CỤC CÔNG NGHỆ THÔNG TIN</div>
+      <div class="brand-main">HỆ THỐNG QUẢN LÝ ÁN</div>
+    </div>
+    <span class="hicon" title="Thu gọn menu" style="margin-left:4px">
+      <svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"></path></svg>
+    </span>
+    <div class="spacer"></div>
+    <span class="kbd"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>⌘K</span>
+    <span class="hicon" title="Ứng dụng"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span>
+    <span class="hicon" title="Thông báo"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+    <span class="hicon" title="Chế độ tối"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></span>
+    <span class="hicon" title="Toàn màn hình"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path></svg></span>
+  </div>
+
+  <div class="body">
+    <nav class="side">
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"></path><path d="M5 10v10h14V10"></path></svg>Trang chủ</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Quản lý đơn</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M12 3v18"></path><path d="M7 8l10-3M7 8l-2 5h4zM17 5l2 5h-4z"></path></svg>Hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="sub active"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M13 3l4 4L7 17H3v-4z"></path></svg>Quản lý sơ thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"></path></svg></span></div>
+      <div class="leaf active" onclick="goList()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path></svg>Hồ sơ vụ án hình sự sơ thẩm</div>
+      <div class="leaf" onclick="goCD()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M20 12H8M12 8l-4 4 4 4"></path><rect x="3" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đến</div>
+      <div class="leaf active" onclick="goCDi()" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 12h12M12 8l4 4-4 4"></path><rect x="17" y="4" width="4" height="16" rx="1"></rect></svg>Hồ sơ vụ án chuyển đi</div>
+      <div class="leaf" style="cursor:pointer"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></svg>Hồ sơ vụ án lưu trữ</div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-3 7 3"></path></svg>Quản lý phúc thẩm vụ án hình sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="sub"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>Giám đốc thẩm / Tái thẩm</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M6 12l6-6 6 6"></path><path d="M9 21v-6h6v6"></path></svg>Đề nghị áp dụng BPXLCH</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><circle cx="18" cy="8" r="2"></circle></svg>Dân sự</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Lao động</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"></circle><circle cx="17" cy="9" r="2"></circle><path d="M2 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path></svg>Hôn nhân và gia đình</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="1"></rect><path d="M9 7V4h6v3M9 12h6M9 16h6"></path></svg>Kinh doanh và thương mại</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6"></path></svg>Hành chính</span><span class="chev"><svg class="icon" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg></span></div>
+      <div class="mi" onclick="goRKN()" style="cursor:pointer"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"></path></svg>Quản lý phiên tòa</span></div>
+      <div class="mi"><span class="l"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Thông báo</span></div>
+    </nav>
+
+    <main class="main">
+      <div class="crumb">Trang chủ / Hình sự / Quản lý sơ thẩm vụ án hình sự / <b>Hồ sơ vụ án chuyển đi</b></div>
+      <h1 class="title">Hồ sơ vụ án hình sự chuyển đi</h1>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th style="width:34px"><input type="checkbox"></th><th>Số thụ lý / Ngày chuyển</th><th>Bị can/Bị cáo &amp; Tội danh</th><th>Tòa án nhận</th><th>Trạng thái</th><th class="col-act">Thao tác</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="row-bar rb-grey"><input type="checkbox"></td>
+            <td><span class="caseno">07/2026/TLST-HS</span><div class="hs-meta">Ngày chuyển: 02/07/2026</div></td>
+            <td class="cell-vv"><div>Trịnh Văn Khoa</div><span class="qhpl-tag">Trộm cắp tài sản — Điều 173 BLHS</span></td>
+            <td>TAND khu vực 3 - TP Hà Nội</td>
+            <td><span class="badge" style="background:#E6F1FB;color:#0C447C">Đã chuyển — chờ xác nhận</span></td>
+            <td class="col-act"><span class="acts"><span class="a a-eye" title="Xem" onclick="event.stopPropagation();alert('Xem chi tiết hồ sơ chuyển đi (minh họa)')"><svg class="icon" style="width:17px;height:17px" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12"></path><circle cx="12" cy="12" r="3"></circle></svg></span></span></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: Xem tài liệu -->
+<div class="modal-mask" id="m-taivieu"><div class="modal flyout-lg">
+  <div class="modal-h"><span class="t">Kết luận điều tra số 42/KLĐT</span><span class="modal-x" onclick="closeModal('m-taivieu')"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></div>
+  <div class="modal-b">
+    <div class="info-cols">
+      <div class="info-tbl">
+        <div class="info-row"><div class="k">Nguồn cung cấp</div><div class="v">Cơ quan CSĐT Công an TP Hà Nội</div></div>
+        <div class="info-row"><div class="k">Ngày cung cấp</div><div class="v">18/06/2026</div></div>
+      </div>
+      <div class="info-tbl">
+        <div class="info-row"><div class="k">Số bút lục</div><div class="v">06 - 120</div></div>
+        <div class="info-row"><div class="k">Định dạng</div><div class="v">PDF, 115 trang</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;height:340px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Bản xem trước tài liệu (PDF viewer minh họa)</div>
+  </div>
+  <div class="modal-f"><button class="btn-ghost" onclick="closeModal('m-taivieu')">Đóng</button><button class="btn-primary"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5 5 5-5M5 21h14"></path></svg>Tải xuống</button></div>
+</div></div>
+
+<!-- MODAL: Thêm / Xem bị can, bị cáo -->
+<div class="modal-mask" id="m-bican"><div class="modal modal-tg-wide flyout-lg">
+  <div class="modal-h"><span class="t">Thông tin bị can / bị cáo</span><span class="modal-x" onclick="closeModal('m-bican')"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></div>
+  <div class="modal-b">
+    <div class="fgrid">
+      <div class="fld"><label>Họ và tên <span class="req">*</span></label><input value="Nguyễn Văn Long"></div>
+      <div class="fld"><label>Ngày sinh</label><input value="14/03/1990"></div>
+      <div class="fld"><label>Số CCCD</label><input value="001090012345"></div>
+      <div class="fld"><label>Giới tính</label><select><option>Nam</option><option>Nữ</option></select></div>
+      <div class="fld full"><label>Địa chỉ thường trú</label><input value="Số 12, ngõ 88, phố Định Công, P. Hoàng Mai, TP Hà Nội"></div>
+      <div class="fld"><label>Tội danh <span class="req">*</span></label><input value="Trộm cắp tài sản"></div>
+      <div class="fld"><label>Điều luật viện dẫn</label><input value="Điều 173 BLHS, Khoản 2"></div>
+      <div class="fld"><label>Biện pháp ngăn chặn</label><select><option>Tạm giam</option><option>Cấm đi khỏi nơi cư trú</option><option>Bảo lĩnh</option><option>Đặt tiền bảo đảm</option></select></div>
+      <div class="fld"><label>Ngày bắt / tạm giữ</label><input value="03/05/2026"></div>
+      <div class="fld full"><label>Tiền án, tiền sự</label><input value="Không"></div>
+    </div>
+  </div>
+  <div class="modal-f"><button class="btn-ghost" onclick="closeModal('m-bican')">Đóng</button><button class="btn-primary" onclick="closeModal('m-bican')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>Lưu</button></div>
+</div></div>
+
+<!-- MODAL: Quyết định đưa vụ án ra xét xử -->
+<div class="modal-mask" id="m-qdxx"><div class="modal flyout-lg">
+  <div class="modal-h"><span class="t">Quyết định đưa vụ án ra xét xử sơ thẩm (Mẫu 27-HS)</span><span class="modal-x" onclick="closeModal('m-qdxx')"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></div>
+  <div class="modal-b">
+    <div class="fgrid">
+      <div class="fld"><label>Số quyết định <span class="req">*</span></label><input value="14/2026/QĐXXST-HS"></div>
+      <div class="fld"><label>Ngày ký</label><input value="15/07/2026"></div>
+      <div class="fld"><label>Ngày mở phiên tòa <span class="req">*</span></label><input value="25/07/2026"></div>
+      <div class="fld"><label>Giờ</label><input value="08h00"></div>
+      <div class="fld"><label>Hình thức xét xử</label><select><option>Công khai</option><option>Xử kín</option></select></div>
+      <div class="fld"><label>Địa điểm</label><input value="Phòng xử án số 2 — TAND khu vực 1"></div>
+      <div class="fld full"><label>Bị cáo đưa ra xét xử</label><input value="Nguyễn Văn Long, Trần Đức Huy"></div>
+      <div class="fld full"><label>Thành phần HĐXX / KSV / Thư ký</label><input value="Tạ Nam Phương (chủ tọa); Đỗ Văn Sơn, Vũ Thị Hằng (HTND); Lê Anh Tuấn (KSV); Vũ Đình Khánh (TK)"></div>
+    </div>
+    <div class="lydo-note" style="margin-top:10px"><svg class="icon" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v4h1"></path></svg><span>Quyết định phải được giao cho bị cáo và gửi cho VKS cùng cấp chậm nhất 10 ngày trước ngày mở phiên tòa (Điều 286 BLTTHS).</span></div>
+  </div>
+  <div class="modal-f"><button class="btn-ghost" onclick="closeModal('m-qdxx')">Hủy</button><button class="btn-primary" onclick="closeModal('m-qdxx')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"></path></svg>Ký số quyết định</button></div>
+</div></div>
+
+<!-- MODAL: Bản án hình sự sơ thẩm -->
+<div class="modal-mask" id="m-banan"><div class="modal flyout-lg">
+  <div class="modal-h"><span class="t" id="ba-hs-title">Bản án hình sự sơ thẩm (Mẫu 28a-HS)</span><span class="modal-x" onclick="closeModal('m-banan')"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></div>
+  <div class="modal-b">
+    <div class="fgrid">
+      <div class="fld"><label>Số bản án <span class="req">*</span></label><input placeholder="VD: 45/2026/HS-ST"></div>
+      <div class="fld"><label>Ngày tuyên án</label><input placeholder="dd/mm/yyyy"></div>
+      <div class="fld full"><label>Bị cáo</label><input value="Nguyễn Văn Long, Trần Đức Huy"></div>
+      <div class="fld full"><label>Tội danh — Điều luật</label><input value="Trộm cắp tài sản — Điều 173 BLHS, Khoản 2"></div>
+      <div class="fld"><label>Hình phạt chính (Nguyễn Văn Long)</label><input placeholder="VD: 24 tháng tù"></div>
+      <div class="fld"><label>Hình phạt chính (Trần Đức Huy)</label><input placeholder="VD: 18 tháng tù treo"></div>
+      <div class="fld full"><label>Trách nhiệm dân sự / bồi thường</label><input placeholder="VD: Buộc bồi thường 87.400.000 đồng"></div>
+      <div class="fld full"><label>Xử lý vật chứng</label><input placeholder="VD: Trả lại tài sản cho bị hại"></div>
+    </div>
+  </div>
+  <div class="modal-f">
+    <button class="btn-ghost" id="ba-hs-btn-huy" onclick="closeModal('m-banan')"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>Hủy dự thảo</button>
+    <button class="btn-primary" id="ba-hs-btn-ky" onclick="closeModal('m-banan')"><svg class="icon" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"></path></svg>Ký số bản án</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Tiếp nhận đơn kháng cáo -->
+<div class="modal-mask" id="m-kc"><div class="modal">
+  <div class="modal-h"><span class="t">Tiếp nhận đơn kháng cáo</span><span class="modal-x" onclick="closeModal('m-kc')"><svg class="icon" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></span></div>
+  <div class="modal-b">
+    <div class="fgrid">
+      <div class="fld full"><label>Người kháng cáo <span class="req">*</span></label><select><option>Bị cáo Nguyễn Văn Long</option><option>Bị cáo Trần Đức Huy</option><option>Bị hại</option><option>Người có quyền lợi, nghĩa vụ liên quan</option></select></div>
+      <div class="fld"><label>Ngày nộp đơn</label><input placeholder="dd/mm/yyyy"></div>
+      <div class="fld"><label>Trong hạn kháng cáo?</label><select><option>Trong hạn (15 ngày)</option><option>Quá hạn</option></select></div>
+      <div class="fld full"><label>Nội dung kháng cáo</label><input placeholder="VD: Kháng cáo xin giảm nhẹ hình phạt"></div>
+      <div class="fld full"><label>Tài liệu đính kèm</label><button class="btn-ghost" type="button" style="height:34px"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"></path></svg>Chọn tệp đơn kháng cáo</button></div>
+    </div>
+  </div>
+  <div class="modal-f"><button class="btn-ghost" onclick="closeModal('m-kc')">Hủy</button><button class="btn-primary" onclick="closeModal('m-kc')"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>Tiếp nhận</button></div>
+</div></div>
+
+<script>
+  // ===== Dữ liệu minh họa cho các vụ án (dùng khi bấm "Xem chi tiết") =====
+  var CASE_DATA = {
+    'VAHS26-0341': {ten:'Nguyễn Văn Long, Trần Đức Huy', sotl:'12/2026/TLST-HS', ngaytl:'04/07/2026', toidanh:'Trộm cắp tài sản — Điều 173 BLHS, Khoản 2', badge:'ĐÃ GIẢI QUYẾT', statusText:'Đã giải quyết', overdue:false},
+    'VAHS26-0355': {ten:'Đỗ Văn Sơn', sotl:'15/2026/TLST-HS', ngaytl:'03/07/2026', toidanh:'Lừa đảo chiếm đoạt tài sản — Điều 174 BLHS, Khoản 3', badge:'CHUẨN BỊ XÉT XỬ', statusText:'Chuẩn bị xét xử', overdue:false},
+    'VAHS26-0349': {ten:'Ngô Văn Hùng', sotl:'09/2026/TLST-HS', ngaytl:'01/06/2026', toidanh:'Cố ý gây thương tích — Điều 134 BLHS, Khoản 2', badge:'ĐANG XÉT XỬ', statusText:'Đang xét xử', overdue:true, overdueDays:6},
+    'VAHS26-0362': {ten:'Phan Văn Đức, Cao Thị Hằng, Bùi Văn Sơn', sotl:'18/2026/TLST-HS', ngaytl:'25/06/2026', toidanh:'Đánh bạc — Điều 321 BLHS, Khoản 1', badge:'TẠM ĐÌNH CHỈ', statusText:'Tạm đình chỉ', overdue:false},
+    'VAHS26-0330': {ten:'Vũ Quang Huy', sotl:'05/2026/TLST-HS', ngaytl:'20/06/2026', toidanh:'Vi phạm quy định về tham gia giao thông đường bộ — Điều 260 BLHS, Khoản 3', badge:'TẠM ĐÌNH CHỈ', statusText:'Tạm đình chỉ (bị can bỏ trốn)', overdue:false},
+    'VAHS26-0318': {ten:'Bùi Thị Thu', sotl:'02/2026/TLST-HS', ngaytl:'15/05/2026', toidanh:'Tàng trữ trái phép chất ma túy — Điều 249 BLHS, Khoản 1', badge:'ĐÌNH CHỈ', statusText:'Đình chỉ vụ án', overdue:false},
+    'VAHS26-0371': {ten:'Trần Quốc Bảo', sotl:'20/2026/TLST-HS', ngaytl:'03/07/2026', toidanh:'Cướp giật tài sản — Điều 171 BLHS, Khoản 1', badge:'CHƯA CÓ HIỆU LỰC', statusText:'Đã tuyên án — chưa có hiệu lực', overdue:false},
+    'VAHS26-0374': {ten:'Đặng Văn Long', sotl:'22/2026/TLST-HS', ngaytl:'28/06/2026', toidanh:'Mua bán trái phép chất ma túy — Điều 251 BLHS, Khoản 2', badge:'ĐÃ CHUYỂN PHÚC THẨM', statusText:'Đã chuyển hồ sơ phúc thẩm', overdue:false},
+    'VAHS26-0308': {ten:'Vũ Thị Hằng', sotl:'28/2026/TLST-HS', ngaytl:'03/06/2026', toidanh:'Tổ chức đánh bạc — Điều 322 BLHS, Khoản 2', badge:'CHỜ XÉT KC QUÁ HẠN', statusText:'Chờ xét kháng cáo quá hạn', overdue:true, overdueDays:0},
+    'VAHS26-0298': {ten:'Lý Văn Thành', sotl:'30/2026/TLST-HS', ngaytl:'03/05/2026', toidanh:'Nhận hối lộ — Điều 354 BLHS, Khoản 2', badge:'CÓ HIỆU LỰC PHÁP LUẬT', statusText:'Có hiệu lực pháp luật', overdue:false}
+  };
+
+  function goDetail(maVu){
+    var d = CASE_DATA[maVu];
+    if(d){
+      document.getElementById('dt-title').textContent = d.ten;
+      document.getElementById('dt-statusbadge').textContent = d.badge;
+      var gso=document.getElementById('dt-ghim-so'); if(gso) gso.textContent = d.sotl;
+      var gqh=document.getElementById('dt-ghim-qhpl'); if(gqh) gqh.textContent = d.toidanh;
+      var mv=document.getElementById('dt-mavu'); if(mv) mv.textContent = maVu;
+      var stl=document.getElementById('dt-sotl'); if(stl) stl.textContent = d.sotl + ' — Ngày TL: ' + d.ngaytl;
+      var qh=document.getElementById('dt-qhpl'); if(qh) qh.textContent = d.toidanh;
+      var st = document.getElementById('dt-status');
+      if(st){
+        var inner = d.overdue
+          ? '<span class="badge badge-overdue">Đã quá hạn '+(d.overdueDays||0)+' ngày</span>'
+          : '<span class="badge" style="background:#FEF3E2;color:#d97706">Trong hạn xét xử</span>';
+        st.innerHTML = '<div class="status-cell"><span>'+d.statusText+'</span><span class="status-extra">'+inner+'</span></div>';
+      }
+    }
+    document.getElementById('screen-list').classList.remove('active');
+    document.getElementById('screen-detail').classList.add('active');
+    try{ window.scrollTo(0,0); }catch(e){}
+  }
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    var t=document.getElementById(id); if(t) t.classList.add('active');
+    try{ window.scrollTo(0,0); }catch(e){}
+  }
+  function goList(){ showScreen('screen-list'); }
+  function goCD(){ showScreen('screen-cd'); }
+  function goCDi(){ showScreen('screen-cdi'); }
+
+  // ===== Modal =====
+  function openModal(id){ var m=document.getElementById(id); if(m){ m.classList.add('open'); document.body.classList.add('modal-open'); } }
+  function closeModal(id){ var m=document.getElementById(id); if(m){ m.classList.remove('open'); } if(!document.querySelector('.modal-mask.open')) document.body.classList.remove('modal-open'); }
+
+  // ===== Tabs (screen-detail) =====
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var t=e.target.closest('.tab'); if(!t) return;
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active');
+    document.querySelectorAll('.tabpane').forEach(function(p){ p.style.display='none'; });
+    var pane=document.getElementById(t.dataset.tab); if(pane) pane.style.display='block';
+  });
+
+  // ===== Thu gọn / mở rộng các mục (sec-h) =====
+  document.querySelectorAll('.sec-h').forEach(function(h){
+    h.style.cursor='pointer';
+    h.addEventListener('click', function(){
+      var el = h.dataset.target ? document.getElementById(h.dataset.target) : h.nextElementSibling;
+      if(!el) return;
+      el.classList.toggle('collapsed');
+      var p=h.querySelector('.toggle svg path');
+      if(p){ p.setAttribute('d', el.classList.contains('collapsed') ? 'M12 5v14M5 12h14' : 'M5 12h14'); }
+    });
+  });
+  // Mặc định: mỗi tab chỉ mở mục đầu tiên
+  document.querySelectorAll('.tabpane').forEach(function(p){
+    var hs=p.querySelectorAll(':scope > .sec-h');
+    hs.forEach(function(h,idx){
+      if(idx===0) return;
+      var el=h.dataset.target ? document.getElementById(h.dataset.target) : h.nextElementSibling;
+      if(!el) return;
+      el.classList.add('collapsed');
+      var pth=h.querySelector('.toggle svg path');
+      if(pth) pth.setAttribute('d','M12 5v14M5 12h14');
+    });
+  });
+
+  // ===== Tìm kiếm nâng cao (danh sách) =====
+  function toggleAdv(){
+    var f=document.getElementById('adv-filters');
+    var caret=document.getElementById('adv-caret');
+    var open = f.style.display==='none';
+    f.style.display = open ? 'grid' : 'none';
+    if(caret) caret.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+  }
+
+  // ===== Menu thêm quyết định (Chuẩn bị xét xử) =====
+  function toggleDonMenu(e){
+    e.stopPropagation();
+    var w=document.getElementById('dd-cbwrap');
+    if(w) w.classList.toggle('open');
+  }
+  function closeDonMenu(){
+    var w=document.getElementById('dd-cbwrap');
+    if(w) w.classList.remove('open');
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.dd-wrap')) closeDonMenu();
+  });
+
+  // ===== Đóng modal khi bấm ra ngoài =====
+  document.querySelectorAll('.modal-mask').forEach(function(m){
+    m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('open'); });
+  });
+</script>
+
+<script>
+  function cdAcceptDemo(el){
+    var tr = el.closest('tr');
+    if(tr){ tr.style.transition='opacity .25s'; tr.style.opacity='0'; setTimeout(function(){ tr.remove(); }, 260); }
+    alert('Đã chấp nhận. Vụ án được chuyển về danh sách "Hồ sơ vụ án hình sự sơ thẩm".');
+  }
+</script>
+
+</body></html>
